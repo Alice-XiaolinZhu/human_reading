@@ -22,7 +22,7 @@ SKIPPED = 1
 PAD = 0
 PLACEHOLDER = 3
 
-vocabulary = [x.split("\t") for x in open(f"./data/vocabulary/clue_corpus.txt", "r").read().strip().split("\n")]
+vocabulary = [x.split("\t") for x in open(f"./data/vocabulary/clue_corpus_small.txt", "r").read().strip().split("\n")]
 itos = [x[1] for x in vocabulary]
 stoi = dict([(x[1], int(x[0])) for x in vocabulary])
 
@@ -41,7 +41,7 @@ def parameters():
             
 def loadCorpus(partition, batchSize):
     assert partition in ["testing", "training", "validation"]
-    with open(f"./data/{partition}_data/clue_corpus_seg.txt", "rb") as inFile:
+    with open(f"./data/{partition}_data/clue_corpus_seg_small.txt", "rb") as inFile:
         while True:
             buff = []
             #print("Filling buffer...")
@@ -165,7 +165,7 @@ devLossesAll = []
 lossRunningAverage = 6.4
 noImprovement = 0
 timeStart_ = time.time()
-for epoch in range(1):
+for epoch in range(50):
     print()
     print("----------------- Epoch:", epoch, "-----------------")
     print("Start Training...")
