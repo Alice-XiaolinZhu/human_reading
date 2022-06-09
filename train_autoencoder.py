@@ -75,13 +75,13 @@ dropout = args.dropout
 learning_rate = args.learning_rate
 batchSize = args.batchSize
 
-char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200) #.cuda()
+char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
 # char_embeddings.weight.data[0], char_embeddings(torch.LongTensor([0]))
 # char_embeddings(torch.LongTensor([0])).size()
 
-reader = torch.nn.LSTM(200, 1024, 1) #.cuda()
-reconstructor = torch.nn.LSTM(200, 1024, 1) #.cuda()
-output = torch.nn.Linear(1024, 50000 + 4) #.cuda()
+reader = torch.nn.LSTM(200, 1024, 1).cuda()
+reconstructor = torch.nn.LSTM(200, 1024, 1).cuda()
+output = torch.nn.Linear(1024, 50000 + 4).cuda()
 
 input_dropout = torch.nn.Dropout(dropout)
 
@@ -98,14 +98,14 @@ def forward(batch, calculateAccuracy=False):
     for text in texts:
         while len(text) < text_length:
             text.append(PAD)
-    texts = torch.LongTensor(texts) #.cuda()
+    texts = torch.LongTensor(texts).cuda()
 
-    mask = torch.FloatTensor([1 for _ in range(len(batch))])  #.cuda()
-    masked = torch.LongTensor([SKIPPED]).unsqueeze(1).expand(len(batch), texts.size()[1]-1)  #.cuda().unsqueeze(1).expand(len(batch), texts.size()[1]-1)
+    mask = torch.FloatTensor([1 for _ in range(len(batch))]).cuda()
+    masked = torch.LongTensor([SKIPPED]).cuda().unsqueeze(1).expand(len(batch), texts.size()[1]-1)  #.cuda().unsqueeze(1).expand(len(batch), texts.size()[1]-1)
     hidden = None
     outputs = []
 
-    mask = torch.bernoulli(torch.FloatTensor([[0.95 for _ in range(texts.size()[0])] for _ in range(texts.size()[1]-1)])).transpose(0,1)  #.cuda()).transpose(0,1)
+    mask = torch.bernoulli(torch.FloatTensor([[0.95 for _ in range(texts.size()[0])] for _ in range(texts.size()[1]-1)]).cuda()).transpose(0,1)  #.cuda()).transpose(0,1)
     #print("size:", mask.size(), texts.size(), masked.size())
     #print("texts:", texts)
     #print("mask:", mask)
@@ -244,8 +244,8 @@ for epoch in range(100):
         optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
         noImprovement += 1
     elif len(devLosses) > 1 and devLosses[-1] < max(devLosses):
-        # torch.save({"devLosses" : devLosses, "args" : args, "components" : [x.state_dict() for x in components_lm], "learning_rate" : learning_rate}, f"/u/scr/mhahn/NEURAL_ATTENTION_TASK/checkpoints_2020/{__file__}_{args.myID}.ckpt")
-        torch.save({"devLosses" : devLosses, "components" : [x.state_dict() for x in components_lm], "learning_rate" : learning_rate}, f"./models/autoencoder.ckpt")
+        torch.save({"devLosses" : devLosses, "args" : args, "components" : [x.state_dict() for x in components_lm], "learning_rate" : learning_rate}, f"./models/autoencoder.ckpt")
+        # torch.save({"devLosses" : devLosses, "components" : [x.state_dict() for x in components_lm], "learning_rate" : learning_rate}, f"./models/autoencoder.ckpt")
         noImprovement = 0
     if noImprovement > 5:
         print("End training, no improvement for 5 epochs")
