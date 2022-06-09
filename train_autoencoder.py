@@ -187,8 +187,6 @@ for epoch in range(50):
         loss = float(loss.mean())
         if counter % 1000 == 0:
             print("  |Batch", counter, ":", loss)
-            print("  |  |")
-            print("  |  V")
         
         trainLoss.append(float(loss)*len(batch))
         examplesNumber2 += len(batch)
@@ -207,7 +205,6 @@ for epoch in range(50):
             print("Trained", SEQUENCE_LENGTH*sent_counter/(time.time()-timeStart), "characters per second.")
             print()'''
     
-    print("  |Batch", counter, ":", loss)
     trainLosses.append(sum(trainLoss)/examplesNumber2)
     print("Trained", SEQUENCE_LENGTH*sent_counter/(time.time()-timeStart), "characters per second.")
     '''for c in components_lm:
@@ -227,16 +224,13 @@ for epoch in range(50):
         with torch.no_grad():
             loss = forward(batch, calculateAccuracy = True)
             loss = float(loss.mean())
-            if counter2 % 500 == 0:
+            if counter2 % 1000 == 0:
                 print("  |Batch", counter2, ":", loss)
-                print("  |  |")
-                print("  |  V")
 
         validLoss.append(float(loss)*len(batch))
         examplesNumber += len(batch)
         devLossesAll.append(loss)
     
-    print("  |Batch", counter2, ":", loss)
     devLosses.append(sum(validLoss)/examplesNumber)
     print("Mean valid loss:", sum(validLoss)/examplesNumber)
         
