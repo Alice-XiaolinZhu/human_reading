@@ -185,7 +185,7 @@ for epoch in range(1):
         loss = forward(batch)
         backward(loss, printHere=printHere)
         loss = float(loss.mean())
-        if counter % 100 == 0:
+        if counter % 1000 == 0:
             print("  |Batch", counter, ":", loss)
             print("  |  |")
             print("  |  V")
@@ -227,7 +227,7 @@ for epoch in range(1):
         with torch.no_grad():
             loss = forward(batch, calculateAccuracy = True)
             loss = float(loss.mean())
-            if counter2 % 100 == 0:
+            if counter2 % 500 == 0:
                 print("  |Batch", counter2, ":", loss)
                 print("  |  |")
                 print("  |  V")
