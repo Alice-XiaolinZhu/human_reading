@@ -165,7 +165,7 @@ devLossesAll = []
 lossRunningAverage = 6.4
 noImprovement = 0
 timeStart_ = time.time()
-for epoch in range(100):
+for epoch in range(1):
     print()
     print("----------------- Epoch:", epoch, "-----------------")
     print("Start Training...")
