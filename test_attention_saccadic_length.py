@@ -317,7 +317,7 @@ lossRunningAverage = 6.4
 #devAccuracies = []
 #devRewards = []
 noImprovement = 0
-gaussian_vars = [0.01, 0.05, 0.1]
+gaussian_vars = [0.02, 0.1, 0.5]
 
 concatenated = []
 with open(f"./results/test_attention_SL_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}.txt", "w") as outFile:
