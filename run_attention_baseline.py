@@ -124,8 +124,9 @@ def forward(batch, calculateAccuracy=False):
             text.append(PAD)
             text_freq.append(float('inf'))
     texts = torch.LongTensor(texts).cuda()
-    texts_freq = torch.LongTensor(texts_freq).cuda()
-    freq_threshold = torch.quantile(texts_freq_, fixation_rate)
+    if (baseline == 'freq_BLI') or (baseline == 'freq_SUB'):
+        texts_freq = torch.FloatTensor(texts_freq).cuda()
+        freq_threshold = torch.quantile(texts_freq_, fixation_rate)
 
     mask = torch.FloatTensor([1 for _ in range(len(batch))]).cuda()
     masked = torch.LongTensor([SKIPPED]).cuda().unsqueeze(1).expand(len(batch), texts.size()[1]-1)  #.cuda().unsqueeze(1).expand(len(batch), texts.size()[1]-1)
