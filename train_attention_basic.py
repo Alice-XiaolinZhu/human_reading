@@ -85,7 +85,7 @@ dropout = args.dropout
 learning_rate = args.learning_rate
 batchSize = args.batchSize
 
-word_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
+char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
 # word_embeddings.weight.data[0], word_embeddings(torch.LongTensor([0]))
 # word_embeddings(torch.LongTensor([0])).size()
 
@@ -98,7 +98,7 @@ input_dropout = torch.nn.Dropout(dropout)
 nllLoss = torch.nn.NLLLoss(reduction="none", ignore_index=PAD)
 crossEntropy = torch.nn.CrossEntropyLoss(reduction="none", ignore_index=PAD)
 
-components_lm = [word_embeddings, reader, reconstructor, output]
+components_lm = [char_embeddings, reader, reconstructor, output]
 
 loaded = torch.load(f"./models/autoencoder.ckpt")
 for i in range(len(loaded["components"])):
@@ -137,7 +137,7 @@ def forward(batch, calculateAccuracy=False):
     attentionLogit_ = []
 
     # Calculate the context-independent attention logits
-    attention_logits_total = bilinear(word_embeddings(texts))  # without context
+    attention_logits_total = bilinear(char_embeddings(texts))  # without context
     
     # Iterate over the input
     for i in range(texts.size()[1]-1):
@@ -146,7 +146,7 @@ def forward(batch, calculateAccuracy=False):
         #print("mask:", mask)
         #print("masked:", masked)
         #print("masked texts:", torch.where(mask==1.0, texts[:,i], masked))
-        embedded_ = word_embeddings(torch.where(mask==1.0, texts[:,i], masked)).unsqueeze(0)  # 0: mask
+        embedded_ = char_embeddings(torch.where(mask==1.0, texts[:,i], masked)).unsqueeze(0)  # 0: mask
         #print(embedded_.size())  # 1,16,200
         _, hidden = reader(embedded_, hidden)
         outputs.append(hidden[0])
@@ -170,7 +170,7 @@ def forward(batch, calculateAccuracy=False):
     attentionLogit = torch.stack(attentionLogit_, dim=0)
     #print("attentionProbability:", attentionProbability.size(), attentionProbability)  # 51,16
 
-    embedded = word_embeddings(texts).transpose(0,1)
+    embedded = char_embeddings(texts).transpose(0,1)
     outputs_decoder, _ = reconstructor(embedded[:-1], hidden)
     
     # Collect target values for decoding loss
