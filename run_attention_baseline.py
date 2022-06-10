@@ -2,6 +2,7 @@
 import torch
 import random
 import time
+import csv
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -21,6 +22,15 @@ vocabulary = [x.split("\t") for x in open(f"./data/vocabulary/clue_corpus_small.
 itos = [x[1] for x in vocabulary]
 stoi = dict([(x[1], int(x[0])) for x in vocabulary])
 
+char_freq = {}
+with open('./data/testing_data/char_freq.csv') as csv_file:
+    csv_reader = csv.reader(csv_file, delimiter=',')
+    line_count = 0
+    for row in csv_reader:
+        if line_count != 0:
+            char_freq[row[1]] = {'CF_BLI':row[2], 'CF_SUB':row[3]}
+        line_count += 1
+
 def numerify(token):
     if token == "@placeholder":
         return PLACEHOLDER
@@ -29,6 +39,15 @@ def numerify(token):
     else:
         return stoi[token]+4
 
+
+def freq(token):
+    if token == "@placeholder":
+        return float('inf')
+    else:
+        if baseline == 'freq_BLI':
+            return char_freq[token]['CF_BLI']
+        elif baseline == 'freq_SUB':
+            return char_freq[token]['CF_SUB']
 
 def loadCorpus(partition, batchSize):
     assert partition in ["testing", "training", "validation"]
@@ -71,13 +90,13 @@ def parameters():
             yield param
     yield runningAverageParameter
 
+    
 dropout = 0.2
 learning_rate = 0.01
 batchSize = 32
+fixation_rate = 0.8
 
-word_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
-# word_embeddings.weight.data[0], word_embeddings(torch.LongTensor([0]))
-# word_embeddings(torch.LongTensor([0])).size()
+char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
 
 reader = torch.nn.LSTM(200, 1024, 1).cuda()
 reconstructor = torch.nn.LSTM(200, 1024, 1).cuda()
@@ -88,133 +107,65 @@ input_dropout = torch.nn.Dropout(dropout)
 nllLoss = torch.nn.NLLLoss(reduction="none", ignore_index=PAD)
 crossEntropy = torch.nn.CrossEntropyLoss(reduction="none", ignore_index=PAD)
 
-components_lm = [word_embeddings, reader, reconstructor, output]
+components_lm = [char_embeddings, reader, reconstructor, output]
 
 loaded = torch.load(f"./models/autoencoder.ckpt")
 for i in range(len(loaded["components"])):
     components_lm[i].load_state_dict(loaded["components"][i])
 
-# Use a linear module for derive attention logit from word embedding
-bilinear = torch.nn.Linear(200, 1).cuda()
-bilinear.weight.data.zero_()
-bilinear.bias.data.zero_()
-
-components_attention = [bilinear]
-runningAverageParameter = torch.FloatTensor([0]).cuda()
-
-state = torch.load(f"./models/attention_basic.ckpt")
-
-# print("args", state["args"])
-# print(state["devRewards"])
-
-if len(state["devRewards"]) < 2:
-    quit()
-for i in range(len(components_lm)):
-    components_lm[i].load_state_dict(state["components_lm"][i])
-for i in range(len(components_attention)):
-    components_attention[i].load_state_dict(state["components_attention"][i])
 
 def forward(batch, calculateAccuracy=False):
     texts = [[PAD] + [numerify(y) for y in x] + [PAD] for x in batch] # [:500]
+    texts_freq = [[float('inf')] + [freq(y) for y in x] + [float('inf')] for x in batch]
+    texts_freq_ = texts_freq.copy()
     text_length = max([len(x) for x in texts])
-    for text in texts:
+    for text, text_freq in zip(texts, texts_freq):
         while len(text) < text_length:
             text.append(PAD)
+            text_freq.append(float('inf'))
     texts = torch.LongTensor(texts).cuda()
+    texts_freq = torch.LongTensor(texts_freq).cuda()
+    freq_threshold = torch.quantile(texts_freq_, fixation_rate)
 
     mask = torch.FloatTensor([1 for _ in range(len(batch))]).cuda()
-    masked = torch.LongTensor([SKIPPED]).cuda().expand(len(batch))  #.cuda().expand(len(batch))
+    masked = torch.LongTensor([SKIPPED]).cuda().unsqueeze(1).expand(len(batch), texts.size()[1]-1)  #.cuda().unsqueeze(1).expand(len(batch), texts.size()[1]-1)
     hidden = None
     outputs = []
 
-    attentionProbability_ = []
-    attentionDecisions_ = []
-    attentionLogit_ = []
-
-    # Calculate the context-independent attention logits
-    attention_logits_total = bilinear(word_embeddings(texts))  # without context
+    if baseline == 'random':
+        mask = torch.bernoulli(torch.FloatTensor([[fixation_rate for _ in range(texts.size()[0])] for _ in range(texts.size()[1]-1)])).cuda().transpose(0,1)  #.cuda()).transpose(0,1)
     
-    # Iterate over the input
-    for i in range(texts.size()[1]-1):
-        #print("size:", mask.size(), texts[:,i].size(), masked.size())  # 16
-        #print("texts:", texts[:,i])
-        #print("mask:", mask)
-        #print("masked:", masked)
-        #print("masked texts:", torch.where(mask==1.0, texts[:,i], masked))
-        embedded_ = word_embeddings(torch.where(mask==1.0, texts[:,i], masked)).unsqueeze(0)  # 0: mask
-        #print(embedded_.size())  # 1,16,200
-        _, hidden = reader(embedded_, hidden)
-        outputs.append(hidden[0])
-        #print("HIDDEN size:", hidden[0].size(), hidden[1].size())  # hidden, cell: 1,16,1024
+    if (baseline == 'freq_BLI') or (baseline == 'freq_SUB'):
+        mask = torch.Tensor(texts_freq[:,:-1] <= freq_threshold, dtype=torch.int32).cuda().transpose(0,1)
         
-        attention_logits = attention_logits_total[:,i+1].squeeze(1)
-        #print(attention_logits.size())
-        attentionProbability = torch.nn.functional.sigmoid(attention_logits)
-        attentionDecisions = torch.bernoulli(attentionProbability)  # bernoulli, generate 0/1 based on input prob
-        mask = attentionDecisions
-        #print("attention_logits:", attention_logits)
-        #print("attentionProbability", attentionProbability)
-        #print("attentionDecisions", attentionDecisions)
-        
-        attentionProbability_.append(attentionProbability)
-        attentionDecisions_.append(attentionDecisions)
-        attentionLogit_.append(attention_logits)
+    embedded_ = char_embeddings(torch.where(mask==1.0, texts[:,:-1], masked)).transpose(0,1)
+    outputs_reader, hidden = reader(embedded_)
 
-    attentionProbability = torch.stack(attentionProbability_, dim=0)
-    attentionDecisions = torch.stack(attentionDecisions_, dim=0)
-    attentionLogit = torch.stack(attentionLogit_, dim=0)
-    #print("attentionProbability:", attentionProbability.size(), attentionProbability)  # 51,16
-
-    embedded = word_embeddings(texts).transpose(0,1)
+    embedded = char_embeddings(texts).transpose(0,1)
+    if not calculateAccuracy:
+        embedded = input_dropout(embedded)
     outputs_decoder, _ = reconstructor(embedded[:-1], hidden)
-    
-    # Collect target values for decoding loss
-    targets = texts.transpose(0,1).contiguous()
-    targets = targets[1:]
-    outputs_cat = output(outputs_decoder)
+    targets = texts.transpose(0,1)
+    targets = torch.cat([targets[1:], targets[1:]], dim=0)
+    outputs_cat = output(torch.cat([outputs_reader, outputs_decoder], dim=0))
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
 
-    # attentionLogProbability = torch.nn.functional.logsigmoid(torch.where(attentionDecisions == 1, attentionLogit, -attentionLogit))
-
-    # At random times, print surprisals and reconstruction losses
-    '''if random.random() < 0.1:
-        print(len(texts), loss.size(), targets.size(), attentionProbability.size(), attentionDecisions.size())
-        loss_reconstructor = loss[:SEQUENCE_LENGTH, 0].cpu()
-        attentionProbability_ = attentionProbability[:SEQUENCE_LENGTH, 0].cpu()
-        attentionDecisions_ = attentionDecisions[:SEQUENCE_LENGTH, 0].cpu()
-        print("\t".join(["Pos", "Word", "Pred", "Rec", "AttProb", "Att?"]))
-        for j in range(SEQUENCE_LENGTH):
-            try:
-                print("\t".join([str(y) for y in [j, batch[0][j]] +[round(float(x),4) for x in [-1, loss_reconstructor[j], attentionProbability_[j], attentionDecisions_[j]]]]))
-                # Note that I'm using -1 for surprisal as this version of the model doesn't compute surprisal
-            except IndexError:
-                print(j, "IndexError")
-    #       quit()'''
- 
-    #print("size:", loss.size(), loss.mean(dim=0).size())  # 51,16
-    #print("loss:", loss.mean(dim=0))
-    #print("size:", attentionDecisions.size(), attentionDecisions.mean(dim=0).size())
-    #print("attentionDecisions:", attentionDecisions.mean(dim=0))
-    
     text_from_batch = []
 
     if True:
         sequenceLengthHere = text_length-2
         loss_reader = loss.cpu()
-        attentionProbability_ = attentionProbability.cpu()
-        attentionDecisions_ = attentionDecisions.cpu()
         for batch_ in range(loss.size()[1]):
             for pos in range(loss.size()[0]):
                 try:
                     # print(batch[batch_][pos])
                     lineForWord = batch[batch_][pos]
-                    text_from_batch.append([str(y) for y in [pos, lineForWord, "InVocab" if stoi.get(lineForWord, 100000) < 50000 else "OOV"] +[round(float(x),4) for x in [loss_reader[pos,batch_], attentionProbability_[pos,batch_], attentionDecisions_[pos, batch_]]]])
+                    text_from_batch.append([str(y) for y in [pos, lineForWord, "InVocab" if stoi.get(lineForWord, 100000) < 50000 else "OOV"] +[round(float(x),4) for x in [loss_reader[pos,batch_], mask[pos, batch_]]]])
                 except IndexError:
                     pass
     
     loss = loss.mean(dim=0)
-    # attentionDecisions = attentionDecisions.mean(dim=0)
-    return loss, text_from_batch # , attentionLogProbability, attentionDecisions
+    return loss, text_from_batch
     
 
 devLosses = []
@@ -225,7 +176,7 @@ noImprovement = 0
 
 
 concatenated = []
-with open(f"./results/test_attention_basic.txt", "w") as outFile:
+with open(f"./results/test_attention_baseline_{baseline}.txt", "w") as outFile:
     validLoss = []
     examplesNumber = 0
     counter = 1
@@ -247,3 +198,4 @@ with open(f"./results/test_attention_basic.txt", "w") as outFile:
         counter += 1
     for x in TEXT_:
         print("\t".join(x), file=outFile)
+        
