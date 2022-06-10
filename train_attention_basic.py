@@ -116,7 +116,7 @@ optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 my_save_path = f"./models/attention_basic.ckpt"
 def SAVE():
-       torch.save({"devRewards" : devRewards, "components_lm" : [x.state_dict() for x in components_lm], "components_attention" : [x.state_dict() for x in components_attention], "learning_rate" : learning_rate}, my_save_path)
+       torch.save({"devRewards" : devRewards, "args" : args, "components_lm" : [x.state_dict() for x in components_lm], "components_attention" : [x.state_dict() for x in components_attention], "learning_rate" : learning_rate}, my_save_path)
           
     
 def forward(batch, calculateAccuracy=False):
