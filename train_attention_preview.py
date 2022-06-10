@@ -290,7 +290,7 @@ clip_bound = random.choice([2, 5, 10, 15])
 fixationRunningAverageByCondition = [0.5,0.5]
 rewardAverage = 10.0
 lossAverageByCondition = [10.0, 10.0]
-gaussian_vars = [0.01, 0.05, 0.1]
+gaussian_vars = [0.02, 0.1, 0.5]
 
 LAMBDA = 2.25
 REWARD_FACTOR = 0.1
