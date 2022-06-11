@@ -154,7 +154,7 @@ def forward(batch, calculateAccuracy=False):
         
         attention_logits = attention_logits_total[:,i+1].squeeze(1)
         #print(attention_logits.size())
-        attentionProbability = torch.nn.functional.sigmoid(attention_logits)
+        attentionProbability = torch.sigmoid(attention_logits)
         attentionDecisions = torch.bernoulli(attentionProbability)  # bernoulli, generate 0/1 based on input prob
         mask = attentionDecisions
         #print("attention_logits:", attention_logits)
