@@ -194,7 +194,7 @@ def forward(batch, calculateAccuracy=False):
     attentionDecisions_ = []
     attentionLogit_ = []
     
-    saccade_history = torch.FloatTensor([0 for _ in range(len(batch))]).cuda()
+    saccade_history = torch.LongTensor([0 for _ in range(len(batch))]).cuda()
 
     if not WITH_CONTEXT:
         # Calculate the context-independent attention logits
@@ -223,10 +223,10 @@ def forward(batch, calculateAccuracy=False):
         else:
             saccade_logits = saccade_logits_total[:,i+1,:] #.squeeze(1)
             saccadeProbability = torch.sigmoid(saccade_logits)
-            saccadeDecisions = torch.multinomial(saccadeProbability, 1).squeeze(1)
+            saccadeDecisions = torch.multinomial(torch.clamp(saccadeProbability, min=0.01, max=0.99), 1).squeeze(1)
         
         saccade_history -= 1
-        saccade_history = torch.where(saccade_history > 0.0, saccade_history.type(torch.LongTensor), saccadeDecisions)
+        saccade_history = torch.where(saccade_history > 0.0, saccade_history, saccadeDecisions.type(torch.LongTensor).cuda())
         mask = torch.where(saccade_history <= 0.0, torch.ones(mask.size()), torch.zeros(mask.size()))
     
         attentionProbability_.append(saccadeProbability[:,0])
