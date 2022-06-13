@@ -226,7 +226,7 @@ def forward(batch, calculateAccuracy=False):
             saccadeDecisions = torch.multinomial(torch.clamp(saccadeProbability, min=0.01, max=0.99), 1).squeeze(1)
         
         saccade_history -= 1
-        saccade_history = torch.where(saccade_history > 0.0, saccade_history, saccadeDecisions.type(torch.LongTensor).cuda())
+        saccade_history = torch.where(saccade_history > 0.0, saccade_history, saccadeDecisions.cuda())
         mask = torch.where(saccade_history <= 0.0, torch.ones(mask.size()), torch.zeros(mask.size()))
     
         attentionProbability_.append(saccadeProbability[:,0])
