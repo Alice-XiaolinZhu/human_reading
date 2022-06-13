@@ -121,10 +121,10 @@ for i in range(len(loaded["components"])):
 # bilinear = torch.nn.Linear(200, 1).cuda()
 if WITH_CONTEXT:
     # Use a bilinear module to combine word embedding with context information
-    bilinear = torch.nn.Bilinear(1024, 200, 1).cuda()
+    bilinear = torch.nn.Bilinear(1024, 200, output_size).cuda()
 else:
     # Use a linear module for derive attention logit from word embedding
-    bilinear = torch.nn.Linear(200, 1).cuda()
+    bilinear = torch.nn.Linear(200, output_size).cuda()
 
 bilinear.weight.data.zero_()
 bilinear.bias.data.zero_()
