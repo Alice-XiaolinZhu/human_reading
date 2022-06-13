@@ -221,7 +221,7 @@ def forward(batch, calculateAccuracy=False):
             attention_logits = attention_logits_total[:,i+1].squeeze(1)
             #print(attention_logits.size())
             attentionProbability = torch.sigmoid(attention_logits)
-            attentionDecisions = torch.bernoulli(attentionProbability)  # bernoulli, generate 0/1 based on input prob
+            attentionDecisions = torch.bernoulli(torch.clamp(attentionProbability, min=0.01, max=0.99))  # bernoulli, generate 0/1 based on input prob
         
         mask = attentionDecisions
         #print("attention_logits:", attention_logits)
