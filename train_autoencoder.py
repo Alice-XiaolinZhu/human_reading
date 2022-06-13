@@ -235,6 +235,7 @@ for epoch in range(50):
         
     with open(f"./results/autoencoder_accuracy.txt", "w") as outFile:
         # print(args, file=outFile)
+        print(f"Mean Training Loss for Epochs: {trainLosses}", file=outFile)
         print(f"Mean Validation Loss for Epochs: {devLosses}", file=outFile)
     
     if len(devLosses) >1 and devLosses[-1] > devLosses[-2]:
@@ -263,7 +264,7 @@ plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend()
 #plt.show()
-plt.savefig("./results/Losses.png")
+plt.savefig("./results/Train_autoencoder_losses.png")
 
 x = [i for i in range(len(trainLossesAll))]
 lt.figure(figsize=(6,4))
@@ -274,4 +275,4 @@ plt.xlabel('Batch')
 plt.ylabel('Loss')
 plt.legend()
 #plt.show()
-plt.savefig("./results/All_Losses.png")
+plt.savefig("./results/Train_autoencoder_all_losses.png")
