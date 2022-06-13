@@ -221,7 +221,7 @@ def forward(batch, calculateAccuracy=False):
         else:
             saccade_logits = saccade_logits_total[:,i+1,:] #.squeeze(1)
             saccadeProbability = torch.sigmoid(saccade_logits)
-            saccadeDecisions = torch.multinomial(saccadeProbability, 1).squeeze(1)
+            saccadeDecisions = torch.multinomial(torch.clamp(saccadeProbability, min=0.01, max=0.99), 1).squeeze(1)
         
         saccade_history -= 1
         saccade_history = torch.where(saccade_history > 0.0, saccade_history, saccadeDecisions.cuda())
