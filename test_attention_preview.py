@@ -125,7 +125,7 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 # optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 
-state = torch.load(f"./models/attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}.ckpt")
+state = torch.load(f"./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}.ckpt")
 
 # print("args", state["args"])
 # print(state["devRewards"])
@@ -313,7 +313,7 @@ noImprovement = 0
 
 
 concatenated = []
-with open(f"./results/test_attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}.txt", "w") as outFile:
+with open(f"./results/test_attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}.txt", "w") as outFile:
     validLoss = []
     examplesNumber = 0
     counter = 1
