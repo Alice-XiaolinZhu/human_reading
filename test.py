@@ -3,6 +3,7 @@ print(torch.__version__)
 print(torch.cuda.is_available())'''
 
 import os
+os.system('python test_attention_basic.py')
 
 params = [[True, True, 3, True], [True, True, 3, False], [False, True, 3, True]]
 for param in params:
