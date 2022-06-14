@@ -330,7 +330,7 @@ def backward(loss, action_logprob, fixatedFraction, printHere=True):
     optimizer.step()
     
     
-my_save_path = f"./models/attention_SL_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}.ckpt"
+my_save_path = f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}.ckpt"
 def SAVE():
        torch.save({"devRewards" : devRewards, "args" : args, "components_lm" : [x.state_dict() for x in components_lm], "components_attention" : [x.state_dict() for x in components_attention], "learning_rate" : learning_rate}, my_save_path)
 
@@ -377,7 +377,7 @@ for epoch in range(4):
         print("Mean valid loss:", sum(validLoss)/examplesNumber)
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         
-        with open(f"./results/train_attention_SL_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}_result.txt.txt", "w") as outFile:
+        with open(f"./results/train_attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
             print(devLosses, file=outFile)
