@@ -103,6 +103,22 @@ if args.embedding_used == 'CWE':
         if counter > 100000:
             break
     print("Done loading embeddings.")
+    
+if args.embedding_used == 'JWE':
+    print(f"Loading {args.embedding_used} embeddings...")
+    with open("./data/embeddings/charJWE.txt", "r", encoding='utf-8') as inFile:
+        next(inFile)
+        counter = 0
+        for line in inFile:
+            counter += 1
+            line = line.strip().split('\t')
+            char = line[0]
+            if char in stoi and stoi[char] < 50000:
+                embedding = torch.FloatTensor([float(x) for x in line[1].split(' ')]).cuda()
+                char_embeddings.weight.data[stoi[char]+4] = embedding
+            if counter > 100000:
+                break
+    print("Done loading embeddings.")
 
 reader = torch.nn.LSTM(200, 1024, 1).cuda()
 reconstructor = torch.nn.LSTM(200, 1024, 1).cuda()
@@ -279,7 +295,7 @@ for epoch in range(50):
     
 print(f"Total processing time:", time.time()-timeStart_)
 
-from matplotlib import pyplot as plt
+'''from matplotlib import pyplot as plt
 x = [i for i in range(len(trainLosses))]
 plt.figure(figsize=(6,4))
 plt.plot(x, trainLosses, label='Training loss')
@@ -300,4 +316,4 @@ plt.xlabel('Batch')
 plt.ylabel('Loss')
 plt.legend()
 #plt.show()
-plt.savefig(f"./results/Train_autoencoder_all_losses_{args.embedding_used}.png")
+plt.savefig(f"./results/Train_autoencoder_all_losses_{args.embedding_used}.png")'''
