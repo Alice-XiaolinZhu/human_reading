@@ -80,14 +80,6 @@ char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 2
 # char_embeddings.weight.data[0], char_embeddings(torch.LongTensor([0]))
 # char_embeddings(torch.LongTensor([0])).size()
 
-dropout = 0.2
-learning_rate = 1
-batchSize = 32
-
-char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200) #.cuda()
-# char_embeddings.weight.data[0], char_embeddings(torch.LongTensor([0]))
-# char_embeddings(torch.LongTensor([0])).size()
-
 # embedding_used = 'CWE'
 embed_vec_cat = {}
 if args.embedding_used == 'CWE':
@@ -100,7 +92,7 @@ if args.embedding_used == 'CWE':
             if char not in embed_vec_cat:
                 embed_vec_cat[char] = []
             if char in embed_vec_cat:
-                embed_vec = torch.FloatTensor([float(x) for x in line[2:]])
+                embed_vec = torch.FloatTensor([float(x) for x in line[2:]]).cuda()
                 embed_vec_cat[char].append(embed_vec)
     counter = 0
     for char in embed_vec_cat:
