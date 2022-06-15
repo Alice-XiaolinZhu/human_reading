@@ -13,6 +13,7 @@ parser.add_argument('--learning_rate', type=float, default=random.choice([1.0]))
 parser.add_argument('--dropout', type=float, default=random.choice([0.0, 0.05, 0.1, 0.15, 0.2]))
 #parser.add_argument('--myID', type=int, default=random.randint(1000,100000000))
 #parser.add_argument('--SEQUENCE_LENGTH', type=int, default=50)
+parser.add_argument('--embedding_used', type=str, default="None")
 
 args = parser.parse_args()
 
@@ -78,6 +79,38 @@ batchSize = args.batchSize
 char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
 # char_embeddings.weight.data[0], char_embeddings(torch.LongTensor([0]))
 # char_embeddings(torch.LongTensor([0])).size()
+
+dropout = 0.2
+learning_rate = 1
+batchSize = 32
+
+char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200) #.cuda()
+# char_embeddings.weight.data[0], char_embeddings(torch.LongTensor([0]))
+# char_embeddings(torch.LongTensor([0])).size()
+
+# embedding_used = 'CWE'
+embed_vec_cat = {}
+if args.embedding_used == 'CWE':
+    print(f"Loading {args.embedding_used} embeddings...")
+    with open("./data/embeddings/charCWE.txt", "r", encoding='utf-8') as inFile:
+        next(inFile)
+        for line in inFile:
+            line = line.strip().split('\t')
+            char = line[0]
+            if char not in embed_vec_cat:
+                embed_vec_cat[char] = []
+            if char in embed_vec_cat:
+                embed_vec = torch.FloatTensor([float(x) for x in line[2:]])
+                embed_vec_cat[char].append(embed_vec)
+    counter = 0
+    for char in embed_vec_cat:
+        counter += 1
+        if char in stoi and stoi[char] < 50000:
+            embedding = torch.mean(torch.stack(embed_vec_cat[char]),dim=0)
+            char_embeddings.weight.data[stoi[char]+4] = embedding
+        if counter > 100000:
+            break
+    print("Done loading embeddings.")
 
 reader = torch.nn.LSTM(200, 1024, 1).cuda()
 reconstructor = torch.nn.LSTM(200, 1024, 1).cuda()
@@ -233,7 +266,7 @@ for epoch in range(50):
     devLosses.append(sum(validLoss)/examplesNumber)
     print("Mean valid loss:", sum(validLoss)/examplesNumber)
         
-    with open(f"./results/autoencoder_accuracy.txt", "w") as outFile:
+    with open(f"./results/autoencoder_accuracy_{args.embedding_used}.txt", "w") as outFile:
         # print(args, file=outFile)
         print(f"Mean Training Loss for Epochs: {trainLosses}", file=outFile)
         print(f"Mean Validation Loss for Epochs: {devLosses}", file=outFile)
@@ -244,7 +277,7 @@ for epoch in range(50):
         optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
         noImprovement += 1
     elif len(devLosses) > 1 and devLosses[-1] < max(devLosses):
-        torch.save({"devLosses" : devLosses, "args" : args, "components" : [x.state_dict() for x in components_lm], "learning_rate" : learning_rate}, f"./models/autoencoder.ckpt")
+        torch.save({"devLosses" : devLosses, "args" : args, "components" : [x.state_dict() for x in components_lm], "learning_rate" : learning_rate}, f"./models/autoencoder_{args.embedding_used}.ckpt")
         # torch.save({"devLosses" : devLosses, "components" : [x.state_dict() for x in components_lm], "learning_rate" : learning_rate}, f"./models/autoencoder.ckpt")
         noImprovement = 0
     if noImprovement > 5:
@@ -264,7 +297,7 @@ plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.legend()
 #plt.show()
-plt.savefig("./results/Train_autoencoder_losses.png")
+plt.savefig(f"./results/Train_autoencoder_losses_{args.embedding_used}.png")
 
 x = [i for i in range(len(trainLossesAll))]
 lt.figure(figsize=(6,4))
@@ -275,4 +308,4 @@ plt.xlabel('Batch')
 plt.ylabel('Loss')
 plt.legend()
 #plt.show()
-plt.savefig("./results/Train_autoencoder_all_losses.png")
+plt.savefig(f"./results/Train_autoencoder_all_losses_{args.embedding_used}.png")
