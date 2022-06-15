@@ -5,7 +5,7 @@ import time
 import argparse
 
 parser = argparse.ArgumentParser()
-
+parser.add_argument('--embedding_used', type=str, default="None")
 args = parser.parse_args()
 
 SEQUENCE_LENGTH = 30
@@ -89,7 +89,7 @@ crossEntropy = torch.nn.CrossEntropyLoss(reduction="none", ignore_index=PAD)
 
 components_lm = [char_embeddings, reader, reconstructor, output]
 
-loaded = torch.load(f"./models/autoencoder.ckpt")
+loaded = torch.load(f"./models/autoencoder_{args.embedding_used}.ckpt")
 for i in range(len(loaded["components"])):
     components_lm[i].load_state_dict(loaded["components"][i])
 
@@ -101,7 +101,7 @@ bilinear.bias.data.zero_()
 components_attention = [bilinear]
 runningAverageParameter = torch.FloatTensor([0]).cuda()
 
-state = torch.load(f"./models/attention_basic.ckpt")
+state = torch.load(f"./models/attention_basic_{args.embedding_used}.ckpt")
 
 # print("args", state["args"])
 # print(state["devRewards"])
@@ -224,7 +224,7 @@ noImprovement = 0
 
 
 concatenated = []
-with open(f"./results/test_attention_basic.txt", "w") as outFile:
+with open(f"./results/test_attention_basic_{args.embedding_used}.txt", "w") as outFile:
     validLoss = []
     examplesNumber = 0
     counter = 1
