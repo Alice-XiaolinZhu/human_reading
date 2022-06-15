@@ -24,6 +24,7 @@ parser.add_argument('--degradedNoise', type=bool, default=True)
 parser.add_argument('--embedding_used', type=str, default="None")
 
 args = parser.parse_args()
+print("Parameters:", args)
 
 SEQUENCE_LENGTH = 30
 TEXT_LENGTH_BOUND = 500
@@ -376,7 +377,6 @@ for epoch in range(1):
         print("Mean valid loss:", sum(validLoss)/examplesNumber)
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         
-        print("params:", args)
         with open(f"./results/train_attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}_{embedding_used}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
