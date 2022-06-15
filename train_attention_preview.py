@@ -38,6 +38,7 @@ WITH_CONTEXT = args.WITH_CONTEXT
 WITH_LM = args.WITH_LM
 previewLength = args.previewLength
 degradedNoise = args.degradedNoise
+embedding_used = args.embedding_used
 
 vocabulary = [x.split("\t") for x in open(f"./data/vocabulary/clue_corpus_small.txt", "r").read().strip().split("\n")]
 itos = [x[1] for x in vocabulary]
@@ -112,7 +113,9 @@ crossEntropy = torch.nn.CrossEntropyLoss(reduction="none", ignore_index=PAD)
 
 components_lm = [char_embeddings, reader, reconstructor, output]
 
-loaded = torch.load(f"./models/autoencoder_{args.embedding_used}.ckpt")
+loaded = torch.load(f"./models/autoencoder_{embedding_used}.ckpt")
+print(f"Load model: ./models/autoencoder_{embedding_used}.ckpt") 
+
 for i in range(len(loaded["components"])):
     components_lm[i].load_state_dict(loaded["components"][i])
 
@@ -324,7 +327,9 @@ def backward(loss, action_logprob, fixatedFraction, printHere=True):
         torch.nn.utils.clip_grad_norm_(parameters(), clip_bound, norm_type=clip_type)
     optimizer.step()
     
-my_save_path = f"./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.ckpt"
+my_save_path = f"./models/attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}_{embedding_used}.ckpt"
+print("Model save path:", my_save_path)
+
 def SAVE():
        torch.save({"devRewards" : devRewards, "args" : args, "components_lm" : [x.state_dict() for x in components_lm], "components_attention" : [x.state_dict() for x in components_attention], "learning_rate" : learning_rate}, my_save_path)
 
@@ -372,7 +377,7 @@ for epoch in range(1):
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         
         print("params:", args)
-        with open(f"./results/train_attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_result.txt", "w") as outFile:
+        with open(f"./results/train_attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}_{embedding_used}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
             print(devLosses, file=outFile)
