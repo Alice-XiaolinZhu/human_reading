@@ -11,6 +11,7 @@ parser.add_argument('--WITH_CONTEXT', type=bool, default=True)
 parser.add_argument('--WITH_LM', type=bool, default=True)
 parser.add_argument('--previewLength', type=int, default=3)
 parser.add_argument('--degradedNoise', type=bool, default=True)
+parser.add_argument('--embedding_used', type=str, default="None")
 
 args = parser.parse_args()
 
@@ -102,7 +103,7 @@ crossEntropy = torch.nn.CrossEntropyLoss(reduction="none", ignore_index=PAD)
 
 components_lm = [char_embeddings, reader, reconstructor, output]
 
-loaded = torch.load(f"./models/autoencoder.ckpt")
+loaded = torch.load(f"./models/autoencoder_{args.embedding_used}.ckpt")
 for i in range(len(loaded["components"])):
     components_lm[i].load_state_dict(loaded["components"][i])
 
@@ -125,7 +126,7 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 # optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 
-state = torch.load(f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}.ckpt")
+state = torch.load(f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.ckpt")
 
 # print("args", state["args"])
 # print(state["devRewards"])
@@ -320,7 +321,7 @@ noImprovement = 0
 gaussian_vars = [0.02, 0.1, 0.5]
 
 concatenated = []
-with open(f"./results/test_attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}.txt", "w") as outFile:
+with open(f"./results/test_attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.txt", "w") as outFile:
     validLoss = []
     examplesNumber = 0
     counter = 1
