@@ -333,7 +333,7 @@ lossRunningAverage = 6.4
 #devAccuracies = []
 devRewards = []
 noImprovement = 0
-for epoch in range(4):
+for epoch in range(1):
     print()
     print("----------------- Epoch:", epoch, "-----------------")
     print("Start Validation...")
@@ -371,6 +371,7 @@ for epoch in range(4):
         print("Mean valid loss:", sum(validLoss)/examplesNumber)
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         
+        print("params:", args)
         with open(f"./results/train_attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
