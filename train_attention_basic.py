@@ -16,7 +16,7 @@ parser.add_argument('--dropout', type=float, default=random.choice([0.0, 0.05, 0
 #parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
 #parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
 #parser.add_argument('--ENTROPY_WEIGHT', type=float, default=0.005) #random.choice([0.0001, 0.001, 0.01, 0.1]))
-
+parser.add_argument('--embedding_used', type=str, default="None")
 
 args = parser.parse_args()
 
@@ -100,7 +100,7 @@ crossEntropy = torch.nn.CrossEntropyLoss(reduction="none", ignore_index=PAD)
 
 components_lm = [char_embeddings, reader, reconstructor, output]
 
-loaded = torch.load(f"./models/autoencoder.ckpt")
+loaded = torch.load(f"./models/autoencoder_{args.embedding_used}.ckpt")
 for i in range(len(loaded["components"])):
     components_lm[i].load_state_dict(loaded["components"][i])
 
@@ -114,7 +114,7 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 
 optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
-my_save_path = f"./models/attention_basic.ckpt"
+my_save_path = f"./models/attention_basic_{args.embedding_used}.ckpt"
 def SAVE():
        torch.save({"devRewards" : devRewards, "args" : args, "components_lm" : [x.state_dict() for x in components_lm], "components_attention" : [x.state_dict() for x in components_attention], "learning_rate" : learning_rate}, my_save_path)
           
@@ -287,7 +287,7 @@ for epoch in range(4):
         print("Mean valid loss:", sum(validLoss)/examplesNumber)
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         
-        with open(f"./results/train_attention_basic_result.txt", "w") as outFile:
+        with open(f"./results/train_attention_basic_{args.embedding_used}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
             print(devLosses, file=outFile)
