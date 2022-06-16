@@ -2,9 +2,9 @@ import os
 
 embedding_used = "None"
 print("Batch size, learning rate, dropout, embedding:", 32, 0.1, 0.1, embedding_used)
-os.system(f'python train_attention_basic.py --batchSize 32 --learning_rate 0.1 --dropout 0.1 --embedding_used {embedding_used}')
+#os.system(f'python train_attention_basic.py --batchSize 32 --learning_rate 0.1 --dropout 0.1 --embedding_used {embedding_used}')
 
-params = [[True, True, 3, True], [True, True, 3, False], [False, True, 3, True]]
+params = [[True, True, 3, False], [False, True, 3, True]] # [[True, True, 3, True], [True, True, 3, False], [False, True, 3, True]]
 for param in params:
     with_context, with_lm, preview_length, degraded_noise = param
     print("Train on parameters:", with_context, with_lm, preview_length, degraded_noise)
