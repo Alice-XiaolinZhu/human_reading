@@ -110,7 +110,7 @@ crossEntropy = torch.nn.CrossEntropyLoss(reduction="none", ignore_index=PAD)
 components_lm = [char_embeddings, reader, reconstructor, output]
 
 loaded = torch.load(f"./models/autoencoder_{embedding_used}.ckpt")
-print(f"Load model: ./models/autoencoder_{embedding_used}.ckpt") 
+print(f"Load autoencoder model: ./models/autoencoder_{embedding_used}.ckpt") 
 
 for i in range(len(loaded["components"])):
     components_lm[i].load_state_dict(loaded["components"][i])
@@ -324,7 +324,7 @@ def backward(loss, action_logprob, fixatedFraction, printHere=True):
     optimizer.step()
     
 my_save_path = f"./models/attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}_{embedding_used}.ckpt"
-print("Model save path:", my_save_path)
+print("Attention model save path:", my_save_path)
 
 def SAVE():
        torch.save({"devRewards" : devRewards, "args" : args, "components_lm" : [x.state_dict() for x in components_lm], "components_attention" : [x.state_dict() for x in components_attention], "learning_rate" : learning_rate}, my_save_path)
