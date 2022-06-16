@@ -4,26 +4,22 @@ import random
 import time
 from torch.distributions import Normal
 import argparse
+from distutils.util import strtobool
 
 parser = argparse.ArgumentParser()
 
 #parser.add_argument('--corpus', type=str, default="cnn")
 parser.add_argument('--batchSize', type=int, default=64) #random.choice([16, 32]))
 parser.add_argument('--learning_rate', type=float, default=random.choice([1.0]))
-#parser.add_argument('--glove', type=bool, default=True)
 parser.add_argument('--dropout', type=float, default=random.choice([0.0, 0.05, 0.1, 0.15, 0.2]))
-#parser.add_argument('--myID', type=int, default=random.randint(1000,100000000))
-#parser.add_argument('--SEQUENCE_LENGTH', type=int, default=50)
-#parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
-#parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
-#parser.add_argument('--ENTROPY_WEIGHT', type=float, default=0.005) #random.choice([0.0001, 0.001, 0.01, 0.1]))
-parser.add_argument('--WITH_CONTEXT', type=bool, default=True)
-parser.add_argument('--WITH_LM', type=bool, default=True)
+parser.add_argument('--WITH_CONTEXT', type=lambda x:bool(strtobool(x)), default=True)
+parser.add_argument('--WITH_LM', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--previewLength', type=int, default=3)
-parser.add_argument('--degradedNoise', type=bool, default=True)
+parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--embedding_used', type=str, default="None")
 
 args = parser.parse_args()
+print("Parameters:", args)
 
 SEQUENCE_LENGTH = 30
 TEXT_LENGTH_BOUND = 500
@@ -115,6 +111,8 @@ crossEntropy = torch.nn.CrossEntropyLoss(reduction="none", ignore_index=PAD)
 components_lm = [char_embeddings, reader, reconstructor, output]
 
 loaded = torch.load(f"./models/autoencoder_{args.embedding_used}.ckpt")
+print(f"Load autoencoder model: ./models/autoencoder_{args.embedding_used}.ckpt") 
+
 for i in range(len(loaded["components"])):
     components_lm[i].load_state_dict(loaded["components"][i])
 
@@ -332,6 +330,8 @@ def backward(loss, action_logprob, fixatedFraction, printHere=True):
     
     
 my_save_path = f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.ckpt"
+print("Attention model save path:", my_save_path)
+
 def SAVE():
        torch.save({"devRewards" : devRewards, "args" : args, "components_lm" : [x.state_dict() for x in components_lm], "components_attention" : [x.state_dict() for x in components_attention], "learning_rate" : learning_rate}, my_save_path)
 
