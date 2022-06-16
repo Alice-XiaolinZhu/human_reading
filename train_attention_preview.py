@@ -4,6 +4,7 @@ import random
 import time
 from torch.distributions import Normal
 import argparse
+from distutils.util import strtobool
 
 parser = argparse.ArgumentParser()
 
@@ -14,7 +15,7 @@ parser.add_argument('--dropout', type=float, default=random.choice([0.0, 0.05, 0
 parser.add_argument('--WITH_CONTEXT', type=bool, default=False)
 parser.add_argument('--WITH_LM', type=bool, default=True)
 parser.add_argument('--previewLength', type=int, default=3)
-parser.add_argument('--degradedNoise', type=int, default=1)
+parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--embedding_used', type=str, default="None")
 
 args = parser.parse_args()
