@@ -4,16 +4,18 @@ import random
 import time
 from torch.distributions import Normal
 import argparse
+from distutils.util import strtobool
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--WITH_CONTEXT', type=bool, default=True)
-parser.add_argument('--WITH_LM', type=bool, default=True)
+parser.add_argument('--WITH_CONTEXT', type=lambda x:bool(strtobool(x)), default=True)
+parser.add_argument('--WITH_LM', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--previewLength', type=int, default=3)
-parser.add_argument('--degradedNoise', type=bool, default=True)
+parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--embedding_used', type=str, default="None")
 
 args = parser.parse_args()
+print("Parameters:", args)
 
 SEQUENCE_LENGTH = 30
 TEXT_LENGTH_BOUND = 500
@@ -104,6 +106,8 @@ crossEntropy = torch.nn.CrossEntropyLoss(reduction="none", ignore_index=PAD)
 components_lm = [char_embeddings, reader, reconstructor, output]
 
 loaded = torch.load(f"./models/autoencoder_{args.embedding_used}.ckpt")
+print(f"Load autoencoder model: ./models/autoencoder_{args.embedding_used}.ckpt") 
+
 for i in range(len(loaded["components"])):
     components_lm[i].load_state_dict(loaded["components"][i])
 
@@ -127,6 +131,7 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 
 
 state = torch.load(f"./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.ckpt")
+print(f"Load attention model: ./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.ckpt") 
 
 # print("args", state["args"])
 # print(state["devRewards"])
