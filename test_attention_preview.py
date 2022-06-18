@@ -13,6 +13,7 @@ parser.add_argument('--WITH_LM', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--previewLength', type=int, default=3)
 parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--embedding_used', type=str, default="None")
+parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
 
 args = parser.parse_args()
 print("Parameters:", args)
@@ -130,8 +131,8 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 # optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 
-state = torch.load(f"./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.ckpt")
-print(f"Load attention model: ./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.ckpt") 
+state = torch.load(f"./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt")
+print(f"Load attention model: ./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt") 
 
 # print("args", state["args"])
 # print(state["devRewards"])
@@ -326,7 +327,7 @@ noImprovement = 0
 
 
 concatenated = []
-with open(f"./results/test_attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.txt", "w") as outFile:
+with open(f"./results/test_attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.txt", "w") as outFile:
     validLoss = []
     examplesNumber = 0
     counter = 1
