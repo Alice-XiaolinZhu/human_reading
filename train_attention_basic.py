@@ -13,10 +13,10 @@ parser.add_argument('--learning_rate', type=float, default=random.choice([1.0]))
 parser.add_argument('--dropout', type=float, default=random.choice([0.0, 0.05, 0.1, 0.15, 0.2]))
 #parser.add_argument('--myID', type=int, default=random.randint(1000,100000000))
 #parser.add_argument('--SEQUENCE_LENGTH', type=int, default=50)
-#parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
 #parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
 #parser.add_argument('--ENTROPY_WEIGHT', type=float, default=0.005) #random.choice([0.0001, 0.001, 0.01, 0.1]))
 parser.add_argument('--embedding_used', type=str, default="None")
+parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
 
 args = parser.parse_args()
 
@@ -84,6 +84,7 @@ def parameters():
 dropout = args.dropout
 learning_rate = args.learning_rate
 batchSize = args.batchSize
+LAMBDA = args.LAMBDA #2.25
 
 char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
 # word_embeddings.weight.data[0], word_embeddings(torch.LongTensor([0]))
@@ -114,7 +115,7 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 
 optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
-my_save_path = f"./models/attention_basic_{args.embedding_used}.ckpt"
+my_save_path = f"./models/attention_basic_{args.embedding_used}_{args.LAMBDA}.ckpt"
 def SAVE():
        torch.save({"devRewards" : devRewards, "args" : args, "components_lm" : [x.state_dict() for x in components_lm], "components_attention" : [x.state_dict() for x in components_attention], "learning_rate" : learning_rate}, my_save_path)
           
@@ -216,7 +217,7 @@ fixationRunningAverageByCondition = [0.5,0.5]
 rewardAverage = 10.0
 lossAverageByCondition = [10.0, 10.0]
 
-LAMBDA = 2.25
+#LAMBDA = args.LAMBDA #2.25
 REWARD_FACTOR = 0.1
 ENTROPY_WEIGHT = 0.005
 
@@ -297,7 +298,7 @@ for epoch in range(4):
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         print("Mean valid perplexity:", sum(validPerplexity)/examplesNumber)
         
-        with open(f"./results/train_attention_basic_{args.embedding_used}_result.txt", "w") as outFile:
+        with open(f"./results/train_attention_basic_{args.embedding_used}__{args.LAMBDA}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
             print(devLosses, file=outFile)
