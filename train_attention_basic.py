@@ -181,6 +181,10 @@ def forward(batch, calculateAccuracy=False):
 
     attentionLogProbability = torch.nn.functional.logsigmoid(torch.where(attentionDecisions == 1, attentionLogit, -attentionLogit))
 
+    # calculate perplexity of decoder LM
+    loss_lm = loss.sum(0)/(loss!=0).sum(0)  # torch.mean(loss, dim=0)
+    perplexity_lm = torch.exp(loss_lm)
+    
     # At random times, print surprisals and reconstruction losses
     '''if random.random() < 0.1:
         print(len(texts), loss.size(), targets.size(), attentionProbability.size(), attentionDecisions.size())
@@ -203,7 +207,7 @@ def forward(batch, calculateAccuracy=False):
     #print("attentionDecisions:", attentionDecisions.mean(dim=0))
     loss = loss.mean(dim=0)
     attentionDecisions = attentionDecisions.mean(dim=0)
-    return loss, attentionLogProbability, attentionDecisions
+    return loss, attentionLogProbability, attentionDecisions, perplexity_lm
   
 clip_type = random.choice([2, "inf", "None"])
 clip_bound = random.choice([2, 5, 10, 15])
@@ -248,6 +252,7 @@ devLosses = []
 lossRunningAverage = 6.4
 #devAccuracies = []
 devRewards = []
+devPerplexity = []
 noImprovement = 0
 for epoch in range(4):
     print()
@@ -258,17 +263,19 @@ for epoch in range(4):
         examplesNumber = 0
         validAccuracy = []
         validReward = []
+        validPerplexity = []
         validAccuracyPerCondition = [0.0, 0.0]
         validFixationsPerCondition = [0.0, 0.0]
         counter2 = 0
         print("Validation loss and reward:")
         for batch in loadCorpus("validation", batchSize):
             with torch.no_grad():
-                loss, action_logprob, fixatedFraction = forward(batch, calculateAccuracy = True)
+                loss, action_logprob, fixatedFraction, perplexity_lm = forward(batch, calculateAccuracy = True)
                 if loss is None:
                     continue
                 reward = float((loss.detach() + LAMBDA * fixatedFraction).mean())
                 loss = float(loss.mean())
+                perplexity_lm = float(perplexity_lm.mean())
                 #print("VALID", loss, examplesNumber, reward)
             
             if counter2 % 1000 == 0:
@@ -278,20 +285,24 @@ for epoch in range(4):
 
             validLoss.append(float(loss)*len(batch))
             validReward.append(reward*len(batch))
+            validPerplexity.append(float(perplexity_lm)*len(batch))
             examplesNumber += len(batch)
             counter2 += 1
         
         devLosses.append(sum(validLoss)/examplesNumber)
         devRewards.append(sum(validReward)/examplesNumber)
+        devPerplexity.append(sum(validPerplexity)/examplesNumber)
         validFixationsPerCondition[0] /= examplesNumber
         print("Mean valid loss:", sum(validLoss)/examplesNumber)
         print("Mean valid reward:", sum(validReward)/examplesNumber)
+        print("Mean valid perplexity:", sum(validPerplexity)/examplesNumber)
         
         with open(f"./results/train_attention_basic_{args.embedding_used}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
             print(devLosses, file=outFile)
             print(devRewards, file=outFile)
+            print(devPerplexity, file=outFile)
             print(fixationRunningAverageByCondition[0], fixationRunningAverageByCondition[1], "savePath="+my_save_path, file=outFile)
             print(rewardAverage, "\t", validAccuracyPerCondition[0], validAccuracyPerCondition[1], "\t", validFixationsPerCondition[0], validFixationsPerCondition[1], file=outFile)
         
@@ -316,7 +327,7 @@ for epoch in range(4):
     for batch in loadCorpus("training", batchSize):
         counter += 1
         printHere = (counter % 5) == 0
-        loss, action_logprob, fixatedFraction = forward(batch)
+        loss, action_logprob, fixatedFraction, perplexity_lm = forward(batch)
         if loss is None:
             continue
         backward(loss, action_logprob, fixatedFraction, printHere=printHere)
