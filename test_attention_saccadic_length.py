@@ -265,7 +265,13 @@ def forward(batch, calculateAccuracy=False):
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
 
     # attentionLogProbability = torch.nn.functional.logsigmoid(torch.where(attentionDecisions == 1, attentionLogit, -attentionLogit))
-
+    # calculate perplexity of decoder LM
+    if WITH_LM:
+        loss_lm = loss[outputs_decoder.size()[0]:].sum(0)/(loss[outputs_decoder.size()[0]:]!=0).sum(0)  # torch.mean(loss[outputs_decoder.size()[0]:], dim=0)
+    else:
+        loss_lm = loss.sum(0)/(loss!=0).sum(0)  # torch.mean(loss, dim=0)
+    perplexity_lm = torch.exp(loss_lm)
+    
     # At random times, print surprisals and reconstruction losses
     '''if random.random() < 0.1:
         print(len(texts), loss.size(), targets.size(), attentionProbability.size(), attentionDecisions.size())
@@ -315,7 +321,7 @@ def forward(batch, calculateAccuracy=False):
     # attentionDecisions = attentionDecisions.mean(dim=0)
     # print("return", len(text_from_batch))
     
-    return loss, text_from_batch  # attentionLogProbability, attentionDecisions
+    return loss, perplexity_lm, text_from_batch  # attentionLogProbability, attentionDecisions
 
 
 devLosses = []
@@ -328,6 +334,7 @@ gaussian_vars = [0.02, 0.1, 0.5]
 concatenated = []
 with open(f"./results/test_attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}.txt", "w") as outFile:
     validLoss = []
+    validPerplexity = []
     examplesNumber = 0
     counter = 1
     TEXT_ = []
@@ -335,14 +342,16 @@ with open(f"./results/test_attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args
     print("Number of batches", len(batches))
     for batch in batches:
         with torch.no_grad():
-            loss, TEXT = forward(batch, calculateAccuracy = True)
+            loss, perplexity_lm, TEXT = forward(batch, calculateAccuracy = True)
             loss = float(loss.mean())
+            perplexity_lm = float(perplexity_lm.mean())
             #print("VALID", loss, examplesNumber)
             for x in TEXT:
                 TEXT_.append(x)
         
         #print("  |Batch", counter, ": loss =", loss)
         validLoss.append(float(loss)*len(batch))
+        validPerplexity.append(float(perplexity_lm)*len(batch))
         examplesNumber += len(batch)
         count = 0
         counter += 1
