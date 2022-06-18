@@ -17,6 +17,7 @@ parser.add_argument('--WITH_LM', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--previewLength', type=int, default=3)
 parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--embedding_used', type=str, default="None")
+parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
 
 args = parser.parse_args()
 print("Parameters:", args)
@@ -93,6 +94,7 @@ def parameters():
 dropout = args.dropout
 learning_rate = args.learning_rate
 batchSize = args.batchSize
+LAMBDA = args.LAMBDA #2.25
 
 char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
 # char_embeddings.weight.data[0], char_embeddings(torch.LongTensor([0]))
@@ -299,7 +301,7 @@ rewardAverage = 10.0
 lossAverageByCondition = [10.0, 10.0]
 gaussian_vars = [0.02, 0.1, 0.5]
 
-LAMBDA = 2.25
+#LAMBDA = 2.25
 REWARD_FACTOR = 0.1
 ENTROPY_WEIGHT = 0.005
 
@@ -330,7 +332,7 @@ def backward(loss, action_logprob, fixatedFraction, printHere=True):
         torch.nn.utils.clip_grad_norm_(parameters(), clip_bound, norm_type=clip_type)
     optimizer.step()
     
-my_save_path = f"./models/attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}_{embedding_used}.ckpt"
+my_save_path = f"./models/attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}_{embedding_used}_{LAMBDA}.ckpt"
 print("Attention model save path:", my_save_path)
 
 def SAVE():
@@ -385,7 +387,7 @@ for epoch in range(4):
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         print("Mean valid perplexity:", sum(validPerplexity)/examplesNumber)
         
-        with open(f"./results/train_attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}_{embedding_used}_result.txt", "w") as outFile:
+        with open(f"./results/train_attention_{WITH_CONTEXT}_{WITH_LM}_{previewLength}_{degradedNoise}_{embedding_used}_{LAMBDA}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
             print(devLosses, file=outFile)
