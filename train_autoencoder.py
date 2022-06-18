@@ -164,7 +164,11 @@ def forward(batch, calculateAccuracy=False):
     targets = torch.cat([targets[1:], targets[1:]], dim=0)
     outputs_cat = output(torch.cat([outputs_reader, outputs_decoder], dim=0))
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
-
+    
+    # calculate perplexity of decoder LM
+    loss_lm = loss[outputs_decoder.size()[0]:].sum(0)/(loss[outputs_decoder.size()[0]:]!=0).sum(0)  # torch.mean(loss[outputs_decoder.size()[0]:], dim=0)
+    perplexity_lm = torch.exp(loss_lm)
+    
     '''if random.random() < 0.02:
         sequenceLengthHere= text_length-2
         # assert sequenceLengthHere == SEQUENCE_LENGTH, (text_length, SEQUENCE_LENGTH)
@@ -178,7 +182,7 @@ def forward(batch, calculateAccuracy=False):
     #print("size:", loss.size(), loss.mean(dim=0).size())
     #print("loss:", loss.mean(dim=0))
     loss = loss.mean(dim=0)  # avg reader and decoder loss of a batch of sents
-    return loss
+    return loss, perplexity_lm
   
 lossAverageByCondition = [10.0, 10.0]
 clip_type = random.choice([2, "inf", "None"])
@@ -199,7 +203,9 @@ def backward(loss, printHere=True):
     optimizer.step()
     
 trainLosses = []
+trainPerplexities = []
 devLosses = []
+devPerplexity = []
 trainLossesAll = []
 devLossesAll = []
 lossRunningAverage = 6.4
@@ -214,7 +220,7 @@ for epoch in range(50):
     timeStart = time.time()
     counter = 0
     trainLoss = []
-    
+    trainPerplexity = []
 
     examplesNumber2 = 0
     print("Training loss:")
@@ -222,13 +228,15 @@ for epoch in range(50):
     for batch in loadCorpus("training", batchSize):
         counter += 1
         printHere = (counter % 25) == 0
-        loss = forward(batch)
+        loss, perplexity_lm = forward(batch)
         backward(loss, printHere=printHere)
         loss = float(loss.mean())
+        perplexity_lm = float(perplexity_lm.mean())
         if counter % 1000 == 0:
-            print("  |Batch", counter, ":", loss)
+            print("  |Batch", counter, ": loss =", loss, ", perplexity =", perplexity_lm)
         
         trainLoss.append(float(loss)*len(batch))
+        trainPerplexity.append(float(perplexity_lm)*len(batch))
         examplesNumber2 += len(batch)
         trainLossesAll.append(loss)
         
@@ -246,6 +254,7 @@ for epoch in range(50):
             print()'''
     
     trainLosses.append(sum(trainLoss)/examplesNumber2)
+    trainPerplexities.append(sum(trainPerplexity)/examplesNumber2)
     print("Trained", SEQUENCE_LENGTH*sent_counter/(time.time()-timeStart), "characters per second.")
     '''for c in components_lm:
         for name, param in c.named_parameters():
@@ -262,22 +271,29 @@ for epoch in range(50):
     for batch in loadCorpus("validation", batchSize):
         counter2 += 1
         with torch.no_grad():
-            loss = forward(batch, calculateAccuracy = True)
+            loss, perplexity_lm = forward(batch, calculateAccuracy = True)
             loss = float(loss.mean())
+            perplexity_lm = float(perplexity_lm.mean())
             if counter2 % 1000 == 0:
-                print("  |Batch", counter2, ":", loss)
+                print("  |Batch", counter2, ": loss =", loss, ", perplexity =", perplexity_lm)
 
         validLoss.append(float(loss)*len(batch))
+        validPerplexity.append(float(perplexity_lm)*len(batch))
         examplesNumber += len(batch)
         devLossesAll.append(loss)
     
     devLosses.append(sum(validLoss)/examplesNumber)
+    devPerplexity.append(sum(validPerplexity)/examplesNumber)
     print("Mean valid loss:", sum(validLoss)/examplesNumber)
+    print("Mean valid perplexity:", sum(validPerplexity)/examplesNumber)
         
     with open(f"./results/autoencoder_accuracy_{args.embedding_used}.txt", "w") as outFile:
         # print(args, file=outFile)
         print(f"Mean Training Loss for Epochs: {trainLosses}", file=outFile)
+        print(f"Mean Training Perplexity for Epochs: {trainPerplexities}", file=outFile)
         print(f"Mean Validation Loss for Epochs: {devLosses}", file=outFile)
+        print(f"Mean Validation Perplexity for Epochs: {devPerplexity}", file=outFile)
+        
     
     if len(devLosses) >1 and devLosses[-1] > devLosses[-2]:
         learning_rate *= 0.8
