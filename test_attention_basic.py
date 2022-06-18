@@ -175,6 +175,10 @@ def forward(batch, calculateAccuracy=False):
 
     # attentionLogProbability = torch.nn.functional.logsigmoid(torch.where(attentionDecisions == 1, attentionLogit, -attentionLogit))
 
+    # calculate perplexity of decoder LM
+    loss_lm = loss.sum(0)/(loss!=0).sum(0)  # torch.mean(loss, dim=0)
+    perplexity_lm = torch.exp(loss_lm)
+    
     # At random times, print surprisals and reconstruction losses
     '''if random.random() < 0.1:
         print(len(texts), loss.size(), targets.size(), attentionProbability.size(), attentionDecisions.size())
