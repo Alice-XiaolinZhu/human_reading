@@ -4,11 +4,15 @@ print(torch.cuda.is_available())'''
 
 import os
 embedding_used = "None"
-os.system(f'python test_attention_basic.py --embedding_used {embedding_used}')
 
-params = [[True, True, 3, True], [True, True, 3, False], [False, True, 3, True]]
-for param in params:
-    with_context, with_lm, preview_length, degraded_noise = param
-    print("Test on parameters:", with_context, with_lm, preview_length, degraded_noise)
-    os.system(f'python test_attention_preview.py --WITH_CONTEXT {with_context} --WITH_LM {with_lm} --previewLength {preview_length} --degradedNoise {degraded_noise} --embedding_used {embedding_used}')
-    os.system(f'python test_attention_saccadic_length.py --WITH_CONTEXT {with_context} --WITH_LM {with_lm} --previewLength {preview_length} --degradedNoise {degraded_noise} --embedding_used {embedding_used}')
+lambdas = [1.5, 2, 2.5]
+params = [[True, True, 3, False]] #, [True, True, 3, False], [False, True, 3, True]]
+for lambda_ in lambdas:
+    os.system(f'python test_attention_basic.py --embedding_used {embedding_used} --LAMBDA {lambda_}')
+
+    for param in params:
+        with_context, with_lm, preview_length, degraded_noise = param
+        print("Test on parameters:", with_context, with_lm, preview_length, degraded_noise, lambda_)
+        os.system(f'python test_attention_preview.py --WITH_CONTEXT {with_context} --WITH_LM {with_lm} --previewLength {preview_length} --degradedNoise {degraded_noise} --embedding_used {embedding_used} --LAMBDA {lambda_}')
+        os.system(f'python test_attention_saccadic_length.py --WITH_CONTEXT {with_context} --WITH_LM {with_lm} --previewLength {preview_length} --degradedNoise {degraded_noise} --embedding_used {embedding_used} --LAMBDA {lambda_}')
+    
