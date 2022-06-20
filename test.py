@@ -3,12 +3,14 @@ print(torch.__version__)
 print(torch.cuda.is_available())'''
 
 import os
-embedding_used = "None"
+embedding_useds = ["None", "CWE", "JWE"] # "None"
 
-lambdas = [1.5, 2, 2.5]
+lambdas = lambdas = [3.5, 4, 4.5, 5, 5.5] #[1.5, 2, 2.5]
 params = [[True, True, 3, False]] #, [True, True, 3, False], [False, True, 3, True]]
-for lambda_ in lambdas:
-    os.system(f'python test_attention_basic.py --embedding_used {embedding_used} --LAMBDA {lambda_}')
+
+for embedding_used in embedding_useds:
+    for lambda_ in lambdas:
+        os.system(f'python test_attention_basic.py --embedding_used {embedding_used} --LAMBDA {lambda_}')
 
     '''for param in params:
         with_context, with_lm, preview_length, degraded_noise = param
