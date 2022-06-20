@@ -3,7 +3,7 @@ import os
 embedding_used = "None"
 print("Batch size, learning rate, dropout, embedding:", 128, 0.1, 0.1, embedding_used)
 
-lambdas = [3.5, 4, 4.5, 5, 5.5] #[1.5, 2, 2.5]
+lambdas = [3.0, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75, 6.0] #[1.5, 2, 2.5]
 params = [[True, True, 3, False]] #, [True, True, 3, False], [False, True, 3, True]]
 
 for lambda_ in lambdas:
