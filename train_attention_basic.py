@@ -298,7 +298,7 @@ for epoch in range(10):
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         print("Mean valid perplexity:", sum(validPerplexity)/examplesNumber)
         
-        with open(f"./results/train_attention_basic_{args.embedding_used}__{args.LAMBDA}_result.txt", "w") as outFile:
+        with open(f"./results/train_attention_basic_{args.embedding_used}_{args.LAMBDA}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
             print(devLosses, file=outFile)
