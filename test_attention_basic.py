@@ -102,7 +102,7 @@ bilinear.bias.data.zero_()
 components_attention = [bilinear]
 runningAverageParameter = torch.FloatTensor([0]).cuda()
 
-state = torch.load(f"./models/tune_lambda/attention_basic_{args.embedding_used}_{args.LAMBDA}.ckpt")
+state = torch.load(f"./models/attention_basic_{args.embedding_used}_{args.LAMBDA}.ckpt")
 
 # print("args", state["args"])
 # print(state["devRewards"])
