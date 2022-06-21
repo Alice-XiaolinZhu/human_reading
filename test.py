@@ -3,9 +3,9 @@ print(torch.__version__)
 print(torch.cuda.is_available())'''
 
 import os
-embedding_useds = ["None", "JWE"] # "None"
+embedding_useds = ["CWE"] # "None"
 
-lambdas = lambdas = [3.0, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75, 6.0] #[1.5, 2, 2.5] #[3.5, 4, 4.5, 5, 5.5] #[1.5, 2, 2.5]
+lambdas = lambdas = [2.625, 2.875, 3.125, 3.375, 3.625, 3.875, 4.125, 4.375, 4.625, 4.875, 5.125] #[1.5, 2, 2.5] #[3.5, 4, 4.5, 5, 5.5] #[1.5, 2, 2.5]
 params = [[True, True, 3, False]] #, [True, True, 3, False], [False, True, 3, True]]
 
 for embedding_used in embedding_useds:
