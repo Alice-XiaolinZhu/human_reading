@@ -131,8 +131,8 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 # optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 
-state = torch.load(f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt")
-print(f"Load attention model: ./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt") 
+state = torch.load(f"./models/tune_lambda/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt")
+print(f"Load attention model: ./models/tune_lambda/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt") 
 
 # print("args", state["args"])
 # print(state["devRewards"])
