@@ -265,6 +265,10 @@ def forward(batch, calculateAccuracy=False):
         outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
 
+    outputs_reader = torch.cat(outputs, dim=0)
+    outputs_cat_ = output(outputs_reader)
+    loss_reader = crossEntropy(outputs_cat_.view(-1, 50004), texts.transpose(0,1)[1:].view(-1)).view(outputs_cat_.size()[0], outputs_cat_.size()[1])
+
     # attentionLogProbability = torch.nn.functional.logsigmoid(torch.where(attentionDecisions == 1, attentionLogit, -attentionLogit))
     # calculate perplexity of decoder LM
     if WITH_LM:
@@ -306,7 +310,9 @@ def forward(batch, calculateAccuracy=False):
 
     if True:
         sequenceLengthHere = text_length-2
-        loss_reader = loss.cpu()
+        #loss_reader = loss.cpu()
+        loss_ = loss.cpu()
+        loss_reader_ = loss_reader.cpu()
         attentionProbability_ = attentionProbability.cpu()
         attentionDecisions_ = attentionDecisions.cpu()
         for batch_ in range(loss.size()[1]):
@@ -314,7 +320,7 @@ def forward(batch, calculateAccuracy=False):
                 try:
                     # print(batch[batch_][pos])
                     lineForWord = batch[batch_][pos]
-                    text_from_batch.append([str(y) for y in [pos, lineForWord, "InVocab" if stoi.get(lineForWord, 100000) < 50000 else "OOV"] +[round(float(x),4) for x in [loss_reader[pos,batch_], attentionProbability_[pos,batch_], attentionDecisions_[pos, batch_]]]])
+                    text_from_batch.append([str(y) for y in [pos, lineForWord, "InVocab" if stoi.get(lineForWord, 100000) < 50000 else "OOV"] +[round(float(x),4) for x in [loss_[pos,batch_], loss_reader_[pos,batch_], attentionProbability_[pos,batch_], attentionDecisions_[pos, batch_]]]])
                 except IndexError:
                     pass
     
