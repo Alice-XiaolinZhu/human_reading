@@ -261,7 +261,8 @@ def forward(batch, calculateAccuracy=False):
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
 
     outputs_reader = torch.cat(outputs, dim=0)
-    loss_reader = crossEntropy(output(outputs_reader).view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
+    outputs_cat_ = output(outputs_reader)
+    loss_reader = crossEntropy(outputs_cat_.view(-1, 50004), texts.transpose(0,1)[1:].view(-1)).view(outputs_cat_.size()[0], outputs_cat_.size()[1])
 
     # attentionLogProbability = torch.nn.functional.logsigmoid(torch.where(attentionDecisions == 1, attentionLogit, -attentionLogit))
 
