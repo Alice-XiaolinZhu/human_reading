@@ -131,8 +131,8 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 # optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 
-state = torch.load(f"./models/tune_lambda/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt")
-print(f"Load attention model: ./models/tune_lambda/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt") 
+state = torch.load(f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt")
+print(f"Load attention model: ./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt") 
 
 # print("args", state["args"])
 # print(state["devRewards"])
@@ -252,17 +252,10 @@ def forward(batch, calculateAccuracy=False):
     embedded = char_embeddings(texts).transpose(0,1)
     outputs_decoder, _ = reconstructor(embedded[:-1], hidden)
        
-    if WITH_LM:
-        # Collect target values for both surprisal and decoding loss
-        targets = texts.transpose(0,1)
-        targets = torch.cat([targets[1:], targets[1:]], dim=0)
-        outputs_reader = torch.cat(outputs, dim=0)
-        outputs_cat = output(torch.cat([outputs_reader, outputs_decoder], dim=0))
-    else:
-        # Collect target values for decoding loss
-        targets = texts.transpose(0,1).contiguous()
-        targets = targets[1:]
-        outputs_cat = output(outputs_decoder)
+    # Collect target values for decoding loss
+    targets = texts.transpose(0,1).contiguous()
+    targets = targets[1:]
+    outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
 
     outputs_reader = torch.cat(outputs, dim=0)
@@ -271,10 +264,7 @@ def forward(batch, calculateAccuracy=False):
 
     # attentionLogProbability = torch.nn.functional.logsigmoid(torch.where(attentionDecisions == 1, attentionLogit, -attentionLogit))
     # calculate perplexity of decoder LM
-    if WITH_LM:
-        loss_lm = loss[outputs_decoder.size()[0]:].sum(0)/(loss[outputs_decoder.size()[0]:]!=0).sum(0)  # torch.mean(loss[outputs_decoder.size()[0]:], dim=0)
-    else:
-        loss_lm = loss.sum(0)/(loss!=0).sum(0)  # torch.mean(loss, dim=0)
+    loss_lm = loss.sum(0)/(loss!=0).sum(0)  # torch.mean(loss, dim=0)
     perplexity_lm = torch.exp(loss_lm)
     
     # At random times, print surprisals and reconstruction losses
