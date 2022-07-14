@@ -9,14 +9,11 @@ parser = argparse.ArgumentParser()
 #parser.add_argument('--corpus', type=str, default="cnn")
 parser.add_argument('--batchSize', type=int, default=64) #random.choice([16, 32]))
 parser.add_argument('--learning_rate', type=float, default=random.choice([1.0]))
-#parser.add_argument('--glove', type=bool, default=True)
 parser.add_argument('--dropout', type=float, default=random.choice([0.0, 0.05, 0.1, 0.15, 0.2]))
-#parser.add_argument('--myID', type=int, default=random.randint(1000,100000000))
-#parser.add_argument('--SEQUENCE_LENGTH', type=int, default=50)
-#parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
-#parser.add_argument('--ENTROPY_WEIGHT', type=float, default=0.005) #random.choice([0.0001, 0.001, 0.01, 0.1]))
 parser.add_argument('--embedding_used', type=str, default="None")
 parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
+parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
+parser.add_argument('--ENTROPY_WEIGHT', type=float, default=0.005)
 
 args = parser.parse_args()
 
@@ -84,7 +81,6 @@ def parameters():
 dropout = args.dropout
 learning_rate = args.learning_rate
 batchSize = args.batchSize
-LAMBDA = args.LAMBDA #2.25
 
 char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
 # word_embeddings.weight.data[0], word_embeddings(torch.LongTensor([0]))
@@ -218,8 +214,12 @@ rewardAverage = 10.0
 lossAverageByCondition = [10.0, 10.0]
 
 #LAMBDA = args.LAMBDA #2.25
-REWARD_FACTOR = 0.1
-ENTROPY_WEIGHT = 0.005
+#REWARD_FACTOR = 0.1
+#ENTROPY_WEIGHT = 0.005
+
+LAMBDA = args.LAMBDA #2.25
+REWARD_FACTOR = args.REWARD_FACTOR
+ENTROPY_WEIGHT = args.ENTROPY_WEIGHT
 
 def backward(loss, action_logprob, fixatedFraction, printHere=True):
     global rewardAverage
