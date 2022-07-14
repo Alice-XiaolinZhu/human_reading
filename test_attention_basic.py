@@ -7,6 +7,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--embedding_used', type=str, default="None")
 parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
+parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
+parser.add_argument('--ENTROPY_WEIGHT', type=float, default=0.005)
 args = parser.parse_args()
 
 SEQUENCE_LENGTH = 30
@@ -102,7 +104,7 @@ bilinear.bias.data.zero_()
 components_attention = [bilinear]
 runningAverageParameter = torch.FloatTensor([0]).cuda()
 
-state = torch.load(f"./models/attention_basic_{args.embedding_used}_{args.LAMBDA}.ckpt")
+state = torch.load(f"./models/attention_basic_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.ckpt")
 
 # print("args", state["args"])
 # print(state["devRewards"])
@@ -233,7 +235,7 @@ noImprovement = 0
 
 
 concatenated = []
-with open(f"./results/test_attention_basic_{args.embedding_used}_{args.LAMBDA}.txt", "w") as outFile:
+with open(f"./results/test_attention_basic_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.txt", "w") as outFile:
     validLoss = []
     examplesNumber = 0
     counter = 1
