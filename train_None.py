@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 embedding_used = "None"
 print("Batch size, learning rate, dropout, embedding:", 128, 0.1, 0.1, embedding_used)
