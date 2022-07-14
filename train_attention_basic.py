@@ -111,7 +111,7 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 
 optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
-my_save_path = f"./models/attention_basic_{args.embedding_used}_{args.LAMBDA}.ckpt"
+my_save_path = f"./models/attention_basic_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.ckpt"
 def SAVE():
        torch.save({"devRewards" : devRewards, "args" : args, "components_lm" : [x.state_dict() for x in components_lm], "components_attention" : [x.state_dict() for x in components_attention], "learning_rate" : learning_rate}, my_save_path)
           
@@ -298,7 +298,7 @@ for epoch in range(5):
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         print("Mean valid perplexity:", sum(validPerplexity)/examplesNumber)
         
-        with open(f"./results/train_attention_basic_{args.embedding_used}_{args.LAMBDA}_result.txt", "w") as outFile:
+        with open(f"./results/train_attention_basic_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
             print(devLosses, file=outFile)
