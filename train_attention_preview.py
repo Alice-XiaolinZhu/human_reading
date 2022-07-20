@@ -157,10 +157,10 @@ def forward(batch, calculateAccuracy=False):
     #print("texts_preview_embedded:", texts_preview_embedded.size())
     #print(texts_preview_embedded[0])
     
+    assert len(gaussian_vars) == previewLength
     noise_size = [texts_preview_embedded.size()[0], texts_preview_embedded.size()[1], 1, texts_preview_embedded.size()[3]]
     if degradedNoise:
         # insert degraded gaussian noise to preview text embeddings input
-        assert len(gaussian_vars) == previewLength
         preview_noise = []
         preview_noise.append(torch.zeros(noise_size).cuda())
         for gaussian_var in gaussian_vars:
@@ -176,12 +176,17 @@ def forward(batch, calculateAccuracy=False):
         preview_noise[:,:,-1:,:] = gaussian_noise.sample(noise_size).squeeze(-1)
         texts_preview_noise = preview_noise
 
-    noised_texts_preview_embedded = texts_preview_embedded + texts_preview_noise
-    # print(texts_preview_embedded[0], texts_preview_noise[0], noised_texts_preview_embedded[0])
+    if previewLength > 0:
+        noised_texts_preview_embedded = texts_preview_embedded + texts_preview_noise
+        # print(texts_preview_embedded[0], texts_preview_noise[0], noised_texts_preview_embedded[0])
+    elif previewLength == 0:
+        noised_texts_preview_embedded = texts_preview_embedded
     
     noised_texts_preview_embedded = noised_texts_preview_embedded.mean(dim=2)
     # print("noised_texts_preview_embedded:", noised_texts_preview_embedded.size())
     # print(noised_texts_preview_embedded[0])
+    print(noised_texts_preview_embedded.size(), char_embeddings(texts).size())
+    print(noised_texts_preview_embedded == char_embeddings(texts))
     
     mask = torch.FloatTensor([1 for _ in range(len(batch))]).cuda()
     masked = torch.LongTensor([SKIPPED]).cuda().expand(len(batch))  #.cuda().expand(len(batch))
