@@ -17,7 +17,9 @@ parser.add_argument('--WITH_LM', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--previewLength', type=int, default=3)
 parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--embedding_used', type=str, default="None")
+parser.add_argument("--gaussian_vars", nargs="+", default=[0.02, 0.1, 0.5])
 parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
+
 
 args = parser.parse_args()
 print("Parameters:", args)
@@ -304,7 +306,8 @@ clip_bound = random.choice([2, 5, 10, 15])
 fixationRunningAverageByCondition = [0.5,0.5]
 rewardAverage = 10.0
 lossAverageByCondition = [10.0, 10.0]
-gaussian_vars = [0.02, 0.1, 0.5]
+gaussian_vars = args.gaussian_vars.list # [0.02, 0.1, 0.5]
+print("Gaussian noise:", gaussian_vars)
 
 #LAMBDA = 2.25
 REWARD_FACTOR = 0.1
