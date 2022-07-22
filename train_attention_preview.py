@@ -192,7 +192,7 @@ def forward(batch, calculateAccuracy=False):
     # print("noised_texts_preview_embedded:", noised_texts_preview_embedded.size())
     # print(noised_texts_preview_embedded[0])
     # print(noised_texts_preview_embedded.size(), char_embeddings(texts).size()) # [128, 32, 200]
-    # print(noised_texts_preview_embedded == char_embeddings(texts)) # True for 0-saccadic length prediction
+    # print(noised_texts_preview_embedded == char_embeddings(texts)) # True for 0-preview
     
     mask = torch.FloatTensor([1 for _ in range(len(batch))]).cuda()
     masked = torch.LongTensor([SKIPPED]).cuda().expand(len(batch))  #.cuda().expand(len(batch))
