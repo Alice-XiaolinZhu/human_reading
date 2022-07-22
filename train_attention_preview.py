@@ -306,7 +306,7 @@ clip_bound = random.choice([2, 5, 10, 15])
 fixationRunningAverageByCondition = [0.5,0.5]
 rewardAverage = 10.0
 lossAverageByCondition = [10.0, 10.0]
-print("This------: args.gaussianVars)
+print("This------:", args.gaussianVars)
 gaussian_vars = args.gaussianVars.list # [0.02, 0.1, 0.5]
 print("Gaussian noise:", gaussian_vars)
 
