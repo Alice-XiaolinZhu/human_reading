@@ -12,8 +12,11 @@ parser.add_argument('--WITH_CONTEXT', type=lambda x:bool(strtobool(x)), default=
 parser.add_argument('--WITH_LM', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--previewLength', type=int, default=3)
 parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
+parser.add_argument('--gaussianVars', type=float, nargs="+", default=[]) # default=[0.02, 0.1, 0.5]
 parser.add_argument('--embedding_used', type=str, default="None")
 parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
+parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
+parser.add_argument('--ENTROPY_WEIGHT', type=float, default=0.005)
 
 args = parser.parse_args()
 print("Parameters:", args)
@@ -131,8 +134,8 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 # optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 
-state = torch.load(f"./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt")
-print(f"Load attention model: ./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt") 
+state = torch.load(f"./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.ckpt")
+print(f"Load attention model: ./models/attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.ckpt") 
 
 # print("args", state["args"])
 # print(state["devRewards"])
@@ -312,7 +315,7 @@ def forward(batch, calculateAccuracy=False):
     return loss, text_from_batch #, attentionLogProbability, attentionDecisions
   
   
-gaussian_vars = [0.02, 0.1, 0.5]
+gaussian_vars = args.gaussianVars
 devLosses = []
 lossRunningAverage = 6.4
 #devAccuracies = []
@@ -321,7 +324,7 @@ noImprovement = 0
 
 
 concatenated = []
-with open(f"./results/test_attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.txt", "w") as outFile:
+with open(f"./results/test_attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.txt", "w") as outFile:
     validLoss = []
     examplesNumber = 0
     counter = 1
