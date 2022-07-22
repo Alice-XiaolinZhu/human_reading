@@ -16,7 +16,7 @@ parser.add_argument('--WITH_CONTEXT', type=lambda x:bool(strtobool(x)), default=
 parser.add_argument('--WITH_LM', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--previewLength', type=int, default=3)
 parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
-parser.add_argument("--gaussianVars", type=float, nargs="+", default=[]) # default=[0.02, 0.1, 0.5]
+parser.add_argument('--gaussianVars', type=float, nargs="+", default=[]) # default=[0.02, 0.1, 0.5]
 parser.add_argument('--embedding_used', type=str, default="None")
 parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
 parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
