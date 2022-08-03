@@ -16,8 +16,11 @@ parser.add_argument('--WITH_CONTEXT', type=lambda x:bool(strtobool(x)), default=
 parser.add_argument('--WITH_LM', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--previewLength', type=int, default=3)
 parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
+parser.add_argument('--gaussianVars', type=float, nargs="+", default=[]) # default=[0.02, 0.1, 0.5]
 parser.add_argument('--embedding_used', type=str, default="None")
 parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
+parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
+parser.add_argument('--ENTROPY_WEIGHT', type=float, default=0.005)
 
 args = parser.parse_args()
 print("Parameters:", args)
@@ -96,6 +99,8 @@ learning_rate = args.learning_rate
 batchSize = args.batchSize
 output_size = 4
 LAMBDA = args.LAMBDA #2.25
+REWARD_FACTOR = args.REWARD_FACTOR
+ENTROPY_WEIGHT = args.ENTROPY_WEIGHT
 
 char_embeddings = torch.nn.Embedding(num_embeddings = 50000+4, embedding_dim = 200).cuda()
 # char_embeddings.weight.data[0], char_embeddings(torch.LongTensor([0]))
@@ -158,10 +163,10 @@ def forward(batch, calculateAccuracy=False):
     #print("texts_preview_embedded:", texts_preview_embedded.size())
     #print(texts_preview_embedded[0])
     
+    assert len(gaussian_vars) == previewLength
     noise_size = [texts_preview_embedded.size()[0], texts_preview_embedded.size()[1], 1, texts_preview_embedded.size()[3]]
     if degradedNoise:
         # insert degraded gaussian noise to preview text embeddings input
-        assert len(gaussian_vars) == previewLength
         preview_noise = []
         preview_noise.append(torch.zeros(noise_size).cuda())
         for gaussian_var in gaussian_vars:
@@ -177,9 +182,13 @@ def forward(batch, calculateAccuracy=False):
         preview_noise[:,:,-1:,:] = gaussian_noise.sample(noise_size).squeeze(-1)
         texts_preview_noise = preview_noise
 
-    noised_texts_preview_embedded = texts_preview_embedded + texts_preview_noise
-    # print(texts_preview_embedded[0], texts_preview_noise[0], noised_texts_preview_embedded[0])
+    if previewLength > 0:
+        noised_texts_preview_embedded = texts_preview_embedded + texts_preview_noise
+        # print(texts_preview_embedded[0], texts_preview_noise[0], noised_texts_preview_embedded[0])
+    elif previewLength == 0:
+        noised_texts_preview_embedded = texts_preview_embedded
     
+   
     noised_texts_preview_embedded = noised_texts_preview_embedded.mean(dim=2)
     # print("noised_texts_preview_embedded:", noised_texts_preview_embedded.size())
     # print(noised_texts_preview_embedded[0])
@@ -304,11 +313,12 @@ clip_bound = random.choice([2, 5, 10, 15])
 fixationRunningAverageByCondition = [0.5,0.5]
 rewardAverage = 10.0
 lossAverageByCondition = [10.0, 10.0]
-gaussian_vars = [0.02, 0.1, 0.5]
+gaussian_vars = args.gaussianVars # [0.02, 0.1, 0.5]
+print("Gaussian noise variances:", gaussian_vars)
 
 # LAMBDA = 2.25
-REWARD_FACTOR = 0.1
-ENTROPY_WEIGHT = 0.005
+# REWARD_FACTOR = 0.1
+# ENTROPY_WEIGHT = 0.005
 
 def backward(loss, action_logprob, fixatedFraction, printHere=True):
     global rewardAverage
@@ -338,7 +348,7 @@ def backward(loss, action_logprob, fixatedFraction, printHere=True):
     optimizer.step()
     
     
-my_save_path = f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt"
+my_save_path = f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.ckpt"
 print("Attention model save path:", my_save_path)
 
 def SAVE():
@@ -393,7 +403,7 @@ for epoch in range(5):
         print("Mean valid reward:", sum(validReward)/examplesNumber)
         print("Mean valid perplexity:", sum(validPerplexity)/examplesNumber)
         
-        with open(f"./results/train_attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}_result.txt", "w") as outFile:
+        with open(f"./results/train_attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}_result.txt", "w") as outFile:
             #print(args, file=outFile)
             #print(devAccuracies, file=outFile)
             print(devLosses, file=outFile)
