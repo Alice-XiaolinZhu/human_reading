@@ -119,6 +119,22 @@ if args.embedding_used == 'JWE':
             if counter > 100000:
                 break
     print("Done loading embeddings.")
+    
+if args.embedding_used == 'CW2VEC':
+    print(f"Loading {args.embedding_used} embeddings...")
+    with open("./data/embeddings/charCW2VEC.txt", "r", encoding='utf-8') as inFile:
+        next(inFile)
+        counter = 0
+        for line in inFile:
+            counter += 1
+            line = line.strip().split('\t')
+            char = line[0]
+            if char in stoi and stoi[char] < 50000:
+                embedding = torch.FloatTensor([float(x) for x in line[1].split(' ')]).cuda()
+                char_embeddings.weight.data[stoi[char]+4] = embedding
+            if counter > 500000:
+                break
+    print("Done loading embeddings.")
 
 reader = torch.nn.LSTM(200, 1024, 1).cuda()
 reconstructor = torch.nn.LSTM(200, 1024, 1).cuda()
