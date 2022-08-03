@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 embedding_used = "None"
 gaussian_var1 = 0.02
