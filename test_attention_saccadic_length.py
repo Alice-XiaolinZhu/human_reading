@@ -12,8 +12,11 @@ parser.add_argument('--WITH_CONTEXT', type=lambda x:bool(strtobool(x)), default=
 parser.add_argument('--WITH_LM', type=lambda x:bool(strtobool(x)), default=True)
 parser.add_argument('--previewLength', type=int, default=3)
 parser.add_argument('--degradedNoise', type=lambda x:bool(strtobool(x)), default=True)
+parser.add_argument('--gaussianVars', type=float, nargs="+", default=[]) # default=[0.02, 0.1, 0.5]
 parser.add_argument('--embedding_used', type=str, default="None")
 parser.add_argument('--LAMBDA', type=float, default=2.25) #random.choice([1.5, 1.75, 2, 2.25, 2.5]))
+parser.add_argument('--REWARD_FACTOR', type=float, default=0.1)
+parser.add_argument('--ENTROPY_WEIGHT', type=float, default=0.005)
 
 args = parser.parse_args()
 print("Parameters:", args)
@@ -131,8 +134,8 @@ runningAverageParameter = torch.FloatTensor([0]).cuda()
 # optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 
-state = torch.load(f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt")
-print(f"Load attention model: ./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.ckpt") 
+state = torch.load(f"./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.ckpt")
+print(f"Load attention model: ./models/attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.ckpt") 
 
 # print("args", state["args"])
 # print(state["devRewards"])
@@ -166,10 +169,10 @@ def forward(batch, calculateAccuracy=False):
     #print("texts_preview_embedded:", texts_preview_embedded.size())
     #print(texts_preview_embedded[0])
     
+    assert len(gaussian_vars) == previewLength
     noise_size = [texts_preview_embedded.size()[0], texts_preview_embedded.size()[1], 1, texts_preview_embedded.size()[3]]
     if degradedNoise:
         # insert degraded gaussian noise to preview text embeddings input
-        assert len(gaussian_vars) == previewLength
         preview_noise = []
         preview_noise.append(torch.zeros(noise_size).cuda())
         for gaussian_var in gaussian_vars:
@@ -185,9 +188,12 @@ def forward(batch, calculateAccuracy=False):
         preview_noise[:,:,-1:,:] = gaussian_noise.sample(noise_size).squeeze(-1)
         texts_preview_noise = preview_noise
 
-    noised_texts_preview_embedded = texts_preview_embedded + texts_preview_noise
-    # print(texts_preview_embedded[0], texts_preview_noise[0], noised_texts_preview_embedded[0])
-    
+    if previewLength > 0:
+        noised_texts_preview_embedded = texts_preview_embedded + texts_preview_noise
+        # print(texts_preview_embedded[0], texts_preview_noise[0], noised_texts_preview_embedded[0])
+    elif previewLength == 0:
+        noised_texts_preview_embedded = texts_preview_embedded
+        
     noised_texts_preview_embedded = noised_texts_preview_embedded.mean(dim=2)
     # print("noised_texts_preview_embedded:", noised_texts_preview_embedded.size())
     # print(noised_texts_preview_embedded[0])
@@ -328,7 +334,7 @@ noImprovement = 0
 gaussian_vars = [0.02, 0.1, 0.5]
 
 concatenated = []
-with open(f"./results/test_attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}.txt", "w") as outFile:
+with open(f"./results/test_attention_SL_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.previewLength}_{args.degradedNoise}_{args.embedding_used}_{args.LAMBDA}_{args.REWARD_FACTOR}_{args.ENTROPY_WEIGHT}.txt", "w") as outFile:
     validLoss = []
     validPerplexity = []
     examplesNumber = 0
