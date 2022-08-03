@@ -164,27 +164,28 @@ def forward(batch, calculateAccuracy=False):
     #print(texts_preview_embedded[0])
     
     assert len(gaussian_vars) == previewLength
-    noise_size = [texts_preview_embedded.size()[0], texts_preview_embedded.size()[1], 1, texts_preview_embedded.size()[3]]
-    if degradedNoise:
-        # insert degraded gaussian noise to preview text embeddings input
-        preview_noise = []
-        preview_noise.append(torch.zeros(noise_size).cuda())
-        for gaussian_var in gaussian_vars:
-            gaussian_noise = Normal(torch.tensor([0.0]).cuda(), torch.tensor([gaussian_var]).cuda())
-            preview_noise.append(gaussian_noise.sample(noise_size).squeeze(-1))
-        texts_preview_noise = torch.cat(preview_noise, dim=2)
-        # print(texts_preview_embedded.size(), texts_preview_noise.size())
-    
-    else:
-        # insert gaussian noise only to the last character of the preview text
-        gaussian_noise = Normal(torch.tensor([0.0]).cuda(), torch.tensor([gaussian_vars[-1]]).cuda())
-        preview_noise = torch.zeros(texts_preview_embedded.size()).cuda()
-        preview_noise[:,:,-1:,:] = gaussian_noise.sample(noise_size).squeeze(-1)
-        texts_preview_noise = preview_noise
-
     if previewLength > 0:
+        noise_size = [texts_preview_embedded.size()[0], texts_preview_embedded.size()[1], 1, texts_preview_embedded.size()[3]]
+        if degradedNoise:
+            # insert degraded gaussian noise to preview text embeddings input
+            preview_noise = []
+            preview_noise.append(torch.zeros(noise_size).cuda())
+            for gaussian_var in gaussian_vars:
+                gaussian_noise = Normal(torch.tensor([0.0]).cuda(), torch.tensor([gaussian_var]).cuda())
+                preview_noise.append(gaussian_noise.sample(noise_size).squeeze(-1))
+            texts_preview_noise = torch.cat(preview_noise, dim=2)
+            # print(texts_preview_embedded.size(), texts_preview_noise.size())
+    
+        else:
+            # insert gaussian noise only to the last character of the preview text
+            gaussian_noise = Normal(torch.tensor([0.0]).cuda(), torch.tensor([gaussian_vars[-1]]).cuda())
+            preview_noise = torch.zeros(texts_preview_embedded.size()).cuda()
+            preview_noise[:,:,-1:,:] = gaussian_noise.sample(noise_size).squeeze(-1)
+            texts_preview_noise = preview_noise
+        
         noised_texts_preview_embedded = texts_preview_embedded + texts_preview_noise
         # print(texts_preview_embedded[0], texts_preview_noise[0], noised_texts_preview_embedded[0])
+    
     elif previewLength == 0:
         noised_texts_preview_embedded = texts_preview_embedded
     
