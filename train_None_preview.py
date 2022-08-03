@@ -8,8 +8,8 @@ gaussian_var3 = 0.5
 print("Batch size, learning rate, dropout, embedding:", 128, 0.1, 0.1, embedding_used)
 
 lambdas = list(np.array([*range(3000, 6250, 250)])/1000)
-reward_factors = [0.01, 0.05, 0.1, 0.15, 0.2, 0.25]
-entropy_weights = [0.001, 0.005, 0.01, 0.015, 0.02]
+reward_factors = [0.25] #[0.01, 0.05, 0.1, 0.15, 0.2, 0.25]
+entropy_weights = [0.001] #[0.001, 0.005, 0.01, 0.015, 0.02]
 params = [[False, True, 0, False]] # with context, with lm, degraded noise
 
 for lambda_ in lambdas:
