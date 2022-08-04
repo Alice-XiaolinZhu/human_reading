@@ -281,6 +281,7 @@ for epoch in range(50):
     print("Start Validation...")
     #if epoch > 0:
     validLoss = []
+    validPerplexity = []
     examplesNumber = 0
     counter2 = 0
     print("Validation loss:")
