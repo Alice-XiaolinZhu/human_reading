@@ -127,8 +127,8 @@ if args.embedding_used == 'CW2VEC':
         counter = 0
         for line in inFile:
             counter += 1
-            line = line.strip().split('\t')
             print(line)
+            line = line.strip().split('\t')[0].split('\t')
             char = line[0]
             print(",,,,,,,", char)
             if char in stoi and stoi[char] < 50000:
