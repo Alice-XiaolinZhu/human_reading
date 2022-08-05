@@ -128,8 +128,9 @@ if args.embedding_used == 'CW2VEC':
         for line in inFile:
             counter += 1
             line = line.strip().split('\t')
+            print(line)
             char = line[0]
-            print(char)
+            print(",,,,,,,", char)
             if char in stoi and stoi[char] < 50000:
                 embedding = torch.FloatTensor([float(x) for x in line[1].split(' ')]).cuda()
                 print(embedding.size())
