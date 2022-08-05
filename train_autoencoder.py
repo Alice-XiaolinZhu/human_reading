@@ -129,16 +129,17 @@ if args.embedding_used == 'CW2VEC':
             counter += 1
             line = line.strip().split('\t')
             char = line[0]
+            print(char)
             if char in stoi and stoi[char] < 50000:
                 embedding = torch.FloatTensor([float(x) for x in line[1].split(' ')]).cuda()
                 print(embedding.size())
                 print(embedding)
-                print(jk)
                 char_embeddings.weight.data[stoi[char]+4] = embedding
             if counter > 500000:
                 break
     print("Done loading embeddings.")
 
+print(jk)
 reader = torch.nn.LSTM(200, 1024, 1).cuda()
 reconstructor = torch.nn.LSTM(200, 1024, 1).cuda()
 output = torch.nn.Linear(1024, 50000 + 4).cuda()
