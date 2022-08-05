@@ -136,7 +136,30 @@ if args.embedding_used == 'CW2VEC':
                 break
     print("Done loading embeddings.")
 
+if args.embedding_used == 'GWE':
+    print(f"Loading {args.embedding_used} embeddings...")
+    with open("./data/embeddings/charGWE.txt", "r", encoding='utf-8') as inFile:
+        next(inFile)
+        for line in inFile:
+            line = line.strip().split('\t')
+            char = line[0]
+            if char not in embed_vec_cat:
+                embed_vec_cat[char] = []
+            if char in embed_vec_cat:
+                embed_vec = torch.FloatTensor([float(x) for x in line[2:]]).cuda()
+                embed_vec_cat[char].append(embed_vec)
+    counter = 0
+    for char in embed_vec_cat:
+        counter += 1
+        if char in stoi and stoi[char] < 50000:
+            embedding = torch.mean(torch.stack(embed_vec_cat[char]),dim=0)
+            print(embedding.size(), embedding)
+            char_embeddings.weight.data[stoi[char]+4] = embedding
+        if counter > 100000:
+            break
+    print("Done loading embeddings.")
 
+print(jk)
 reader = torch.nn.LSTM(200, 1024, 1).cuda()
 reconstructor = torch.nn.LSTM(200, 1024, 1).cuda()
 output = torch.nn.Linear(1024, 50000 + 4).cuda()
