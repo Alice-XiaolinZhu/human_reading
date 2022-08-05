@@ -153,13 +153,11 @@ if args.embedding_used == 'GWE':
         counter += 1
         if char in stoi and stoi[char] < 50000:
             embedding = torch.mean(torch.stack(embed_vec_cat[char]),dim=0)
-            print(embedding.size(), embedding)
             char_embeddings.weight.data[stoi[char]+4] = embedding
         if counter > 100000:
             break
     print("Done loading embeddings.")
 
-print(jk)
 reader = torch.nn.LSTM(200, 1024, 1).cuda()
 reconstructor = torch.nn.LSTM(200, 1024, 1).cuda()
 output = torch.nn.Linear(1024, 50000 + 4).cuda()
