@@ -421,8 +421,9 @@ for epoch in range(5):
             SAVE()
   
         # noImprovement = 0
-        if noImprovement > 5:
+        if noImprovement == 5:
             print("End training, no improvement for 5 epochs")
+            SAVE()
             break
     
     print()
