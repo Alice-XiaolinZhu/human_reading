@@ -361,7 +361,7 @@ lossRunningAverage = 6.4
 devRewards = []
 devPerplexity = []
 noImprovement = 0
-for epoch in range(2):
+for epoch in range(5):
     print()
     print("----------------- Epoch:", epoch, "-----------------")
     print("Start Validation...")
