@@ -361,7 +361,7 @@ lossRunningAverage = 6.4
 devRewards = []
 devPerplexity = []
 noImprovement = 0
-for epoch in range(5):
+for epoch in range(2):
     print()
     print("----------------- Epoch:", epoch, "-----------------")
     print("Start Validation...")
@@ -417,13 +417,14 @@ for epoch in range(5):
             learning_rate *= 0.8
             optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
             noImprovement += 1
+            print('No improvement, dont save!!!!')
         elif len(devRewards) > 1 and devRewards[-1] == min(devRewards):
             SAVE()
+            print('Save!!!!!!!!!!!!!!')
   
         # noImprovement = 0
         if noImprovement == 5:
             print("End training, no improvement for 5 epochs")
-            SAVE()
             break
     
     print()
