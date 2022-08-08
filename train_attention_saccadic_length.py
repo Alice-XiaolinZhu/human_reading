@@ -417,14 +417,16 @@ for epoch in range(2):
             learning_rate *= 0.8
             optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
             noImprovement += 1
-            print('No improvement, dont save!!!!')
+            print('No improvement, dont save!!!! noImprovement =', noImprovement)
         elif len(devRewards) > 1 and devRewards[-1] == min(devRewards):
             SAVE()
-            print('Save!!!!!!!!!!!!!!')
+            print('Save model!!!!!!!!!!!!!!')
   
         # noImprovement = 0
         if noImprovement == 5:
             print("End training, no improvement for 5 epochs")
+            SAVE()
+            print('Save because of no improvement!!!!!!!!!!!!!!')
             break
     
     print()
