@@ -1,12 +1,12 @@
 import os
 import numpy as np
 
-embedding_used = "None"
+embedding_used = "CW2VEC"
 print("Batch size, learning rate, dropout, embedding:", 128, 0.1, 0.1, embedding_used)
 
-lambdas = [4.0] #list(np.array([*range(3250, 6250, 250)])/1000)
+lambdas = list(np.array([*range(3000, 6250, 250)])/1000)
 reward_factors = [0.25] #[0.01, 0.05, 0.1, 0.15, 0.2, 0.25]
-entropy_weights = [0.02] #[0.001, 0.005, 0.01, 0.015, 0.02]
+entropy_weights = [0.001] #[0.001, 0.005, 0.01, 0.015, 0.02]
 
 #params = [[False, False, 3, False]] #, [True, True, 3, False], [False, True, 3, True]]
 
