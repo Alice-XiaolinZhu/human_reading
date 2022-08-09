@@ -423,10 +423,10 @@ for epoch in range(5):
             print('Save model!!!!!!!!!!!!!!')
   
         # noImprovement = 0
-        if noImprovement == 5:
+        if noImprovement >= 4:
             print("End training, no improvement for 5 epochs")
             SAVE()
-            print('Save because of no improvement!!!!!!!!!!!!!!')
+            print('Save anyway!!!!!!!!!!!!!!')
             break
     
     print()
