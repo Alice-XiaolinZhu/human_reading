@@ -270,7 +270,7 @@ def forward(batch, calculateAccuracy=False):
         # Collect target values for decoding loss
         targets = texts.transpose(0,1).contiguous()[1:]
         print("??????", targets)
-        print("??????", torch.LongTensor(targets).cuda())
+        print("??????", targets.type(torch.cuda.LongTensor))
         targets = torch.where(attentionDecisions == 1.0, torch.LongTensor(targets).cuda(), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
         outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
