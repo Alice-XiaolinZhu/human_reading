@@ -269,13 +269,13 @@ def forward(batch, calculateAccuracy=False):
     else:
         # Collect target values for decoding loss
         targets = texts.transpose(0,1).contiguous()[1:]
-        print("??????", type(torch.LongTensor(targets.cpu().detach().numpy()).cuda()))
-        print("??????", type(torch.ones(mask.size()).cuda()))
-        print("??????", type(attentionDecisions))
-        print("??????", type(saccade_history))
-        print("??????", type(torch.zeros(attentionDecisions.size()).cuda()))
-        print("??????", type(torch.zeros(mask.size()).cuda()))
-        targets = torch.where(attentionDecisions == 1.0, torch.LongTensor(targets.cpu().detach().numpy()).cuda(), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
+        print("??????", torch.LongTensor(targets.cpu().detach().numpy()).cuda().type())
+        print("??????", torch.ones(mask.size()).cuda().type())
+        print("??????", attentionDecisions.type())
+        print("??????", saccade_history.type())
+        print("??????", torch.zeros(attentionDecisions.size()).cuda().type())
+        print("??????", torch.zeros(mask.size()).cuda().type())
+        targets = torch.where(attentionDecisions == torch.LongTensor(1.0).cuda(), torch.LongTensor(targets.cpu().detach().numpy()).cuda(), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
         outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
     
