@@ -333,7 +333,7 @@ with open(f"./results/test_attention_{args.WITH_CONTEXT}_{args.WITH_LM}_{args.pr
     examplesNumber = 0
     counter = 1
     TEXT_ = []
-    batches = list(loadCorpus("validation", batchSize))
+    batches = list(loadCorpus("testing", batchSize))
     print("Number of batches", len(batches))
     for batch in batches:
         with torch.no_grad():
