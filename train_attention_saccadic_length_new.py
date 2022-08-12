@@ -255,7 +255,7 @@ def forward(batch, calculateAccuracy=False):
     outputs_decoder, _ = reconstructor(embedded[:-1], hidden)
     print("attentionDecisions size:", attentionDecisions.size())
     print("outputs_decoder size:", outputs_decoder.size())
-    print("output(outputs_decoder) size:". output(outputs_decoder).size())
+    print("output(outputs_decoder) size:", output(outputs_decoder).size())
     print("targets size:", targets[1:].size())
        
     if WITH_LM:
