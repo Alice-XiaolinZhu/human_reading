@@ -256,7 +256,7 @@ def forward(batch, calculateAccuracy=False):
     print("attentionDecisions size:", attentionDecisions.size())
     print("outputs_decoder size:", outputs_decoder.size())
     print("output(outputs_decoder) size:", output(outputs_decoder).size())
-    print("targets size:", targets[1:].size())
+    print("targets size:", texts.transpose(0,1).contiguous()[1:].size())
        
     if WITH_LM:
         # Collect target values for both surprisal and decoding loss
