@@ -381,6 +381,7 @@ for epoch in range(5):
         counter2 = 0
         print("Validation loss and reward:")
         for batch in loadCorpus("validation", batchSize):
+            print("???????", batch)
             with torch.no_grad():
                 loss, action_logprob, fixatedFraction, perplexity_lm = forward(batch, calculateAccuracy = True)
                 print("???????", loss)
