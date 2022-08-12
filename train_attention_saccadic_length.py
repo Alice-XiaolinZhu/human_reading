@@ -262,10 +262,6 @@ def forward(batch, calculateAccuracy=False):
         # Collect target values for both surprisal and decoding loss
         # mask targets by attentionDecisions for computing loss 
         targets = texts.transpose(0,1)[1:]
-        print("??????", targets.type(torch.LongTensor))
-        print("??????", torch.ones(mask.size()).cuda())
-        print("??????", attentionDecisions)
-        print("??????", saccade_history)
         targets = torch.where(attentionDecisions == 1.0, targets.type(torch.LongTensor), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
         targets = torch.cat([targets, targets], dim=0)
         outputs_reader = torch.cat(outputs, dim=0)
@@ -273,6 +269,10 @@ def forward(batch, calculateAccuracy=False):
     else:
         # Collect target values for decoding loss
         targets = texts.transpose(0,1).contiguous()[1:]
+        print("??????", targets.type(torch.LongTensor))
+        print("??????", torch.ones(mask.size()).cuda())
+        print("??????", attentionDecisions)
+        print("??????", saccade_history)
         targets = torch.where(attentionDecisions == 1.0, targets.type(torch.LongTensor), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
         outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
