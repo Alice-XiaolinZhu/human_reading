@@ -383,6 +383,7 @@ for epoch in range(5):
         for batch in loadCorpus("validation", batchSize):
             with torch.no_grad():
                 loss, action_logprob, fixatedFraction, perplexity_lm = forward(batch, calculateAccuracy = True)
+                print("???????", loss)
                 if loss is None:
                     continue
                 reward = float((loss.detach() + LAMBDA * fixatedFraction).mean())
