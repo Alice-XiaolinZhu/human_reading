@@ -264,6 +264,8 @@ def forward(batch, calculateAccuracy=False):
         targets = texts.transpose(0,1)[1:]
         print("??????", targets.type(torch.LongTensor))
         print("??????", torch.ones(mask.size()).cuda())
+        print("??????", attentionDecisions)
+        print("??????", saccade_history)
         targets = torch.where(attentionDecisions == 1.0, targets.type(torch.LongTensor), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
         targets = torch.cat([targets, targets], dim=0)
         outputs_reader = torch.cat(outputs, dim=0)
