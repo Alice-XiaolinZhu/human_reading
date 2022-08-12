@@ -261,16 +261,15 @@ def forward(batch, calculateAccuracy=False):
     if WITH_LM:
         # Collect target values for both surprisal and decoding loss
         # mask targets by attentionDecisions for computing loss 
-        targets = texts.transpose(0,1)
+        targets = texts.transpose(0,1)[1:]
         targets = torch.where(attentionDecisions == 1, targets, torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
-        targets = torch.cat([targets[1:], targets[1:]], dim=0)
+        targets = torch.cat([targets, targets], dim=0)
         outputs_reader = torch.cat(outputs, dim=0)
         outputs_cat = output(torch.cat([outputs_reader, outputs_decoder], dim=0))
     else:
         # Collect target values for decoding loss
-        targets = texts.transpose(0,1).contiguous()
+        targets = texts.transpose(0,1).contiguous()[1:]
         targets = torch.where(attentionDecisions == 1, targets, torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
-        targets = targets[1:]
         outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
     
