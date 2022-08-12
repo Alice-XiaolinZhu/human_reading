@@ -271,11 +271,11 @@ def forward(batch, calculateAccuracy=False):
         targets = texts.transpose(0,1).contiguous()[1:]
         print("??????", torch.LongTensor(targets.cpu().detach().numpy()).cuda().type())
         print("??????", torch.ones(mask.size()).cuda().type())
-        print("??????", attentionDecisions.type())
+        print("??????", torch.LongTensor(attentionDecisions.cpu().detach().numpy()).cuda().type())
         print("??????", saccade_history.type())
         print("??????", torch.zeros(attentionDecisions.size()).cuda().type())
         print("??????", torch.zeros(mask.size()).cuda().type())
-        targets = torch.where(attentionDecisions == torch.LongTensor(1.0).cuda(), torch.LongTensor(targets.cpu().detach().numpy()).cuda(), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
+        targets = torch.where(torch.LongTensor(attentionDecisions.cpu().detach().numpy()).cuda() == 1.0, torch.LongTensor(targets.cpu().detach().numpy()).cuda(), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
         outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
     
