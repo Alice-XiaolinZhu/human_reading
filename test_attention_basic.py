@@ -240,7 +240,7 @@ with open(f"./results/test_attention_basic_{args.embedding_used}_{args.LAMBDA}_{
     examplesNumber = 0
     counter = 1
     TEXT_ = []
-    batches = list(loadCorpus("validation", batchSize))
+    batches = list(loadCorpus("testing", batchSize))
     print("Number of batches", len(batches))
     for batch in batches:
         with torch.no_grad():
