@@ -253,6 +253,10 @@ def forward(batch, calculateAccuracy=False):
 
     embedded = char_embeddings(texts).transpose(0,1)
     outputs_decoder, _ = reconstructor(embedded[:-1], hidden)
+    print("attentionDecisions size:", attentionDecisions.size())
+    print("outputs_decoder size:", outputs_decoder.size())
+    print("output(outputs_decoder) size:". output(outputs_decoder).size())
+    print("targets size:", targets[1:].size())
        
     if WITH_LM:
         # Collect target values for both surprisal and decoding loss
@@ -266,6 +270,7 @@ def forward(batch, calculateAccuracy=False):
         targets = targets[1:]
         outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
+    
 
     attentionLogProbability = torch.nn.functional.logsigmoid(torch.where(attentionDecisions == 1, attentionLogit, -attentionLogit))
     
