@@ -269,7 +269,7 @@ def forward(batch, calculateAccuracy=False):
     else:
         # Collect target values for decoding loss
         targets = texts.transpose(0,1).contiguous()[1:]
-        print("??????", targets.type(torch.LongTensor))
+        print("??????", targets.type(torch.LongTensor).cuda())
         print("??????", torch.ones(mask.size()).cuda())
         print("??????", attentionDecisions)
         print("??????", saccade_history)
