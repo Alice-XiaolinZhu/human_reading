@@ -262,19 +262,17 @@ def forward(batch, calculateAccuracy=False):
         # Collect target values for both surprisal and decoding loss
         # mask targets by attentionDecisions for computing loss 
         targets = texts.transpose(0,1)[1:]
-        targets = torch.where(attentionDecisions == 1.0, torch.LongTensor(targets).cuda(), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
+        targets = torch.where(attentionDecisions == 1.0, targets.type(torch.cuda.LongTensor), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
         targets = torch.cat([targets, targets], dim=0)
         outputs_reader = torch.cat(outputs, dim=0)
         outputs_cat = output(torch.cat([outputs_reader, outputs_decoder], dim=0))
     else:
         # Collect target values for decoding loss
         targets = texts.transpose(0,1).contiguous()[1:]
-        print("??????", targets)
-        print("??????", targets.type(torch.cuda.LongTensor))
-        targets = torch.where(attentionDecisions == 1.0, torch.LongTensor(targets).cuda(), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
+        targets = torch.where(attentionDecisions == 1.0, targets.type(torch.cuda.LongTensor), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
         outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), targets.view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
-    print("??????", loss)
+    
 
     attentionLogProbability = torch.nn.functional.logsigmoid(torch.where(attentionDecisions == 1, attentionLogit, -attentionLogit))
     
@@ -384,9 +382,7 @@ for epoch in range(5):
         print("Validation loss and reward:")
         for batch in loadCorpus("validation", batchSize):
             with torch.no_grad():
-                print("???????", batch)
                 loss, action_logprob, fixatedFraction, perplexity_lm = forward(batch, calculateAccuracy = True)
-                print("???????", loss)
                 if loss is None:
                     continue
                 reward = float((loss.detach() + LAMBDA * fixatedFraction).mean())
