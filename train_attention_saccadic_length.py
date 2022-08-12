@@ -268,7 +268,7 @@ def forward(batch, calculateAccuracy=False):
         outputs_cat = output(torch.cat([outputs_reader, outputs_decoder], dim=0))
     else:
         # Collect target values for decoding loss
-        targets = texts.transpose(0,1).contiguous()[1:]
+        targets = texts.transpose(0,1)[1:] #.contiguous()[1:]
         print("??????", type(torch.LongTensor(targets.cpu().detach().numpy()).cuda()))
         print("??????", type(torch.ones(mask.size()).cuda()))
         print("??????", type(attentionDecisions))
