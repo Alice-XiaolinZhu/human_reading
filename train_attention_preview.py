@@ -210,6 +210,7 @@ def forward(batch, calculateAccuracy=False):
     
     # Iterate over the input
     for i in range(texts.size()[1]-1):
+        print(i)
         #print("size:", mask.size(), texts[:,i].size(), masked.size())  # 16
         #print("texts:", texts[:,i])
         #print("mask:", mask)
