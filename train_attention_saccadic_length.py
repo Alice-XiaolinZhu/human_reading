@@ -155,7 +155,7 @@ def forward(batch, calculateAccuracy=False):
     for text in texts_:
         while len(text) < text_length_:
             text.append(PAD)
-    texts_preview = [[texts_[i][j:j+previewLength] for j in range(text_length_-previewLength)] for i in range(len(texts_))]
+    texts_preview = [[texts_[i][j:j+previewLength] for j in range(text_length_-previewLength+1)] for i in range(len(texts_))]
     texts_preview = torch.LongTensor(texts_preview).cuda()
     #print("texts_preview:", texts_preview.size())
     
