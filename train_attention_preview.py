@@ -149,6 +149,7 @@ def forward(batch, calculateAccuracy=False):
         while len(text) < text_length:
             text.append(PAD)
     texts = torch.LongTensor(texts).cuda()
+    print(texts.size()[1]-1)
     
     texts_ = [[PAD] + [numerify(y) for y in x] + [PAD for _ in range(previewLength)] for x in batch] # [:500]
     text_length_ = max([len(x) for x in texts_])
