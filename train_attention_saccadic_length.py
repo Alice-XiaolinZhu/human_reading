@@ -202,6 +202,7 @@ def forward(batch, calculateAccuracy=False):
     attentionProbability_ = []
     attentionDecisions_ = []
     attentionLogit_ = []
+    maskLossDecisions_ = []
     
     saccade_history = torch.LongTensor([0 for _ in range(len(batch))]).cuda()
 
@@ -237,10 +238,12 @@ def forward(batch, calculateAccuracy=False):
         saccade_history -= 1
         saccade_history = torch.where(saccade_history > 0.0, saccade_history, saccadeDecisions.cuda())
         mask = torch.where(saccade_history <= 0.0, torch.ones(mask.size()).cuda(), torch.zeros(mask.size()).cuda())
+        mask_loss = torch.where(saccade_history <= 1.0, torch.ones(mask.size()).cuda(), torch.zeros(mask.size()).cuda())
     
         attentionProbability_.append(saccadeProbability[:,0])
         attentionDecisions_.append(mask)
         attentionLogit_.append(saccade_logits[:,0])
+        maskLossDecisions_.append(mask_loss)
     
         #print("attention_logits:", attention_logits)
         #print("attentionProbability", attentionProbability)
@@ -249,6 +252,7 @@ def forward(batch, calculateAccuracy=False):
     attentionProbability = torch.stack(attentionProbability_, dim=0)
     attentionDecisions = torch.stack(attentionDecisions_, dim=0)
     attentionLogit = torch.stack(attentionLogit_, dim=0)
+    maskLossDecisions = torch.stack(maskLossDecisions_, dim=0)
     #print("attentionProbability:", attentionProbability.size(), attentionProbability)  # 51,16
 
     embedded = char_embeddings(texts).transpose(0,1)
@@ -262,14 +266,14 @@ def forward(batch, calculateAccuracy=False):
         # Collect target values for both surprisal and decoding loss
         # mask targets by attentionDecisions for computing loss 
         targets = texts.transpose(0,1)[1:]
-        targets = torch.where(torch.LongTensor(attentionDecisions.cpu().detach().numpy()).cuda() == 1.0, torch.FloatTensor(targets.cpu().detach().numpy()).cuda(), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
+        targets = torch.where(torch.LongTensor(maskLossDecisions.cpu().detach().numpy()).cuda() == 1.0, torch.FloatTensor(targets.cpu().detach().numpy()).cuda(), torch.zeros(maskLossDecisions.size()).cuda()) # 0: mask
         targets = torch.cat([targets, targets], dim=0)
         outputs_reader = torch.cat(outputs, dim=0)
         outputs_cat = output(torch.cat([outputs_reader, outputs_decoder], dim=0))
     else:
         # Collect target values for decoding loss
         targets = texts.transpose(0,1).contiguous()[1:]
-        targets = torch.where(torch.LongTensor(attentionDecisions.cpu().detach().numpy()).cuda() == 1.0, torch.FloatTensor(targets.cpu().detach().numpy()).cuda(), torch.zeros(attentionDecisions.size()).cuda()) # 0: mask
+        targets = torch.where(torch.LongTensor(maskLossDecisions.cpu().detach().numpy()).cuda() == 1.0, torch.FloatTensor(targets.cpu().detach().numpy()).cuda(), torch.zeros(maskLossDecisions.size()).cuda()) # 0: mask
         outputs_cat = output(outputs_decoder)
     loss = crossEntropy(outputs_cat.view(-1, 50004), torch.LongTensor(targets.cpu().detach().numpy()).cuda().view(-1)).view(outputs_cat.size()[0], outputs_cat.size()[1])
     
