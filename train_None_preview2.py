@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 embedding_used = "None"
-gaussian_var1 = 0.02
+gaussian_var1 = 0.0
 gaussian_var2 = 0.1
 gaussian_var3 = 0.5
 
