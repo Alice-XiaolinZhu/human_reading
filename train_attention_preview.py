@@ -192,7 +192,7 @@ def forward(batch, calculateAccuracy=False):
     noised_texts_preview_embedded = noised_texts_preview_embedded.mean(dim=2)
     # print("noised_texts_preview_embedded:", noised_texts_preview_embedded.size())
     # print(noised_texts_preview_embedded[0])
-    print(noised_texts_preview_embedded.size(), char_embeddings(texts).size()) # [128, 32, 200]
+    # print(noised_texts_preview_embedded.size(), char_embeddings(texts).size()) # [128, 32, 200]
     # print(noised_texts_preview_embedded == char_embeddings(texts)) # True for 0-preview
     
     mask = torch.FloatTensor([1 for _ in range(len(batch))]).cuda()
@@ -210,7 +210,6 @@ def forward(batch, calculateAccuracy=False):
     
     # Iterate over the input
     for i in range(texts.size()[1]-1):
-        print(i)
         #print("size:", mask.size(), texts[:,i].size(), masked.size())  # 16
         #print("texts:", texts[:,i])
         #print("mask:", mask)
