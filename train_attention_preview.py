@@ -144,14 +144,11 @@ optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 def forward(batch, calculateAccuracy=False):
     texts = [[PAD] + [numerify(y) for y in x] + [PAD] for x in batch] # [:500]
-    print(texts)
     text_length = max([len(x) for x in texts])
-    print(text_length)
     for text in texts:
         while len(text) < text_length:
             text.append(PAD)
     texts = torch.LongTensor(texts).cuda()
-    print(texts.size()[1]-1)
     
     texts_ = [[PAD] + [numerify(y) for y in x] + [PAD for _ in range(previewLength)] for x in batch] # [:500]
     text_length_ = max([len(x) for x in texts_])
@@ -195,7 +192,7 @@ def forward(batch, calculateAccuracy=False):
     noised_texts_preview_embedded = noised_texts_preview_embedded.mean(dim=2)
     # print("noised_texts_preview_embedded:", noised_texts_preview_embedded.size())
     # print(noised_texts_preview_embedded[0])
-    # print(noised_texts_preview_embedded.size(), char_embeddings(texts).size()) # [128, 32, 200]
+    print(noised_texts_preview_embedded.size(), char_embeddings(texts).size()) # [128, 32, 200]
     # print(noised_texts_preview_embedded == char_embeddings(texts)) # True for 0-preview
     
     mask = torch.FloatTensor([1 for _ in range(len(batch))]).cuda()
