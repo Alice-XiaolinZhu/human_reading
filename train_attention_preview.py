@@ -144,7 +144,9 @@ optimizer = torch.optim.SGD(parameters(), lr = learning_rate)
 
 def forward(batch, calculateAccuracy=False):
     texts = [[PAD] + [numerify(y) for y in x] + [PAD] for x in batch] # [:500]
+    print(texts)
     text_length = max([len(x) for x in texts])
+    print(text_length)
     for text in texts:
         while len(text) < text_length:
             text.append(PAD)
