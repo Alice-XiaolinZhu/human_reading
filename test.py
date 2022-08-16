@@ -4,7 +4,7 @@ print(torch.cuda.is_available())'''
 
 import os
 import numpy as np
-embedding_useds = ["CW2VEC", "GWE"]
+embedding_useds = ["None", "JWE"]
 gaussian_var1 = 0.0
 gaussian_var2 = 0.1
 gaussian_var3 = 0.5
