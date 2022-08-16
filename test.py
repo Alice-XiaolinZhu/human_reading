@@ -4,16 +4,16 @@ print(torch.cuda.is_available())'''
 
 import os
 import numpy as np
-embedding_useds = ["None", "JWE", "CW2VEC", "GWE"]
+embedding_useds = ["CWE"]
 gaussian_var1 = 0.0
 gaussian_var2 = 0.1
 gaussian_var3 = 0.5
 
-lambdas = list(np.array([*range(3000, 6250, 250)])/1000)
+lambdas = list(np.array([*range(2500, 5750, 250)])/1000)
 reward_factors = [0.25] #[0.01, 0.05, 0.1, 0.15, 0.2, 0.25]
 entropy_weights = [0.001] #[0.001, 0.005, 0.01, 0.015, 0.02]
 #params = [[True, False, 3, False], [False, True, 3, False], [True, True, 3, False], [False, False, 3, False], [False, False, 3, True]] 
-params = [[True, False, 1, False], [False, True, 1, False], [True, True, 1, False], [False, False, 3, False], [False, False, 2, False], [False, False, 3, True]] 
+params = [[True, False, 1, False]]#[[True, False, 1, False], [False, True, 1, False], [True, True, 1, False], [False, False, 3, False], [False, False, 2, False], [False, False, 3, True]] 
 
 for embedding_used in embedding_useds:
     for lambda_ in lambdas:
