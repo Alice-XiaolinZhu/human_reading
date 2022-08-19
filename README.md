@@ -19,8 +19,8 @@ These files include:
 ```evaluation_final.ipynb``` for evaluating model performance by calculating perplexity, accuracy and F1-score;  
 ```run_baseline_final.ipynb``` to run baselines involved in this study;  
 ```analysis_wrap-up_final.ipynb``` for analysing first character effect and wrap-up effect in BSC dataset;  
-```analysis_human_¥&¥_prediction_includeFirstChar_final.ipynb``` to analyse LMM results before removing the first character;  
-```analysis_human_¥&¥_prediction_excludeFirstChar_final.ipynb``` to analyse LMM results after removing the first character.  
+```analysis_human_&_prediction_includeFirstChar_final.ipynb``` to analyse LMM results before removing the first character;  
+```analysis_human_&_prediction_excludeFirstChar_final.ipynb``` to analyse LMM results after removing the first character.  
 
 ## 2. Introdction to dataset
 Dataset involved in this study include:
