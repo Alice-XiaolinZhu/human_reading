@@ -15,6 +15,7 @@ The directory include python files as follows:
 
 In addition, it provides .ipynb files to extract evaluation data, run baselines and Linear Mixed-effects Models (LMMs) experiment with R.  
 These files include:  
+```extract_raw_text_final.ipynb``` for extracting raw text from CLUECorpus2020;    
 ```read_bsc_final.ipynb``` for reading Beijing Sentence Corpus (BSC) for eye-movement evaluation data and development and testing sentences;  
 ```evaluation_final.ipynb``` for evaluating model performance by calculating perplexity, accuracy and F1-score;  
 ```run_baseline_final.ipynb``` to run baselines involved in this study;  
