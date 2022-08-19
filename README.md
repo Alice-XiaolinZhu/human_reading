@@ -3,7 +3,7 @@ The code is based on Michael Hahn & Frank Keller' study [Modeling Human Reading 
 
 The directory include python files as follows:  
 
-train_autoencoder.py file for pre-training reader-decoder network;  
+```train_autoencoder.py``` file for pre-training reader-decoder network;  
 train_attention_basic.py for jointly training the attention module without extra conditions given;  
 train_attention_preview.py for training the attention module, allowing model to take into account the context, LM loss and preview characters;  
 train_attention_saccadic_length.py for training the attention module to predict saccadic length;  
