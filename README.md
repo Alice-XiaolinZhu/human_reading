@@ -4,23 +4,23 @@ The code is based on Michael Hahn & Frank Keller' study [Modeling Human Reading 
 The directory include python files as follows:  
 
 ```train_autoencoder.py``` file for pre-training reader-decoder network;  
-train_attention_basic.py for jointly training the attention module without extra conditions given;  
-train_attention_preview.py for training the attention module, allowing model to take into account the context, LM loss and preview characters;  
-train_attention_saccadic_length.py for training the attention module to predict saccadic length;  
-train.py file for training all the variants with different variables;  
-test_attention_basic.py for basic attention module to predict the fixation sequence;  
-test_attention_preview.py for attention module variants to predict the fixation sequence;  
-test_attention_saccadic_length.py for attention module to predict the saccadic length;  
-test.py for testing all the models once.  
+```train_attention_basic.py``` for jointly training the attention module without extra conditions given;  
+```train_attention_preview.py``` for training the attention module, allowing model to take into account the context, LM loss and preview characters;  
+```train_attention_saccadic_length.py``` for training the attention module to predict saccadic length;  
+```train.py``` file for training all the variants with different variables;  
+```test_attention_basic.py``` for basic attention module to predict the fixation sequence;  
+```test_attention_preview.py``` for attention module variants to predict the fixation sequence;  
+```test_attention_saccadic_length.py``` for attention module to predict the saccadic length;  
+```test.py``` for testing all the models once.  
 
 In addition, it provides .ipynb files to extract evaluation data, run baselines and Linear Mixed-effects Models (LMMs) experiment with R.  
 These files include:  
-read_bsc_final.ipynb for reading Beijing Sentence Corpus (BSC) for eye-movement evaluation data and development and testing sentences;  
-evaluation_final.py for evaluating model performance by calculating perplexity, accuracy and F1-score;  
-run_baseline_final.ipynb to run baselines involved in this study;  
-analysis_wrap-up_final.ipynb for analysing first character effect and wrap-up effect in BSC dataset;  
-analysis_human_¥&¥_prediction_includeFirstChar_final.ipynb to analyse LMM results before removing the first character;  
-analysis_human_¥&¥_prediction_excludeFirstChar_final.ipynb to analyse LMM results after removing the first character.  
+```read_bsc_final.ipynb``` for reading Beijing Sentence Corpus (BSC) for eye-movement evaluation data and development and testing sentences;  
+```evaluation_final.ipynb``` for evaluating model performance by calculating perplexity, accuracy and F1-score;  
+```run_baseline_final.ipynb``` to run baselines involved in this study;  
+```analysis_wrap-up_final.ipynb``` for analysing first character effect and wrap-up effect in BSC dataset;  
+```analysis_human_¥&¥_prediction_includeFirstChar_final.ipynb``` to analyse LMM results before removing the first character;  
+```analysis_human_¥&¥_prediction_excludeFirstChar_final.ipynb``` to analyse LMM results after removing the first character.  
 
 ## 2. Introdction to dataset
 Dataset involved in this study include:
