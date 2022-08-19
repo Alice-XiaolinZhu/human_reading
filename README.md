@@ -1,16 +1,16 @@
 ## Introduction to code files
-The code is based on Michael Hahn & Frank Keller' study [Modeling Human Reading with Neural Attention](https://arxiv.org/abs/1608.05604) in modeling English reading behaviors.
-The directory include python files as follows:
+The code is based on Michael Hahn & Frank Keller' study [Modeling Human Reading with Neural Attention](https://arxiv.org/abs/1608.05604) in modeling English reading behaviors.  
+The directory include python files as follows:  
 
-train_autoencoder.py file for pre-training reader-decoder network;
-train_attention_basic.py for jointly training the attention module without extra conditions given;
-train_attention_preview.py for training the attention module, allowing model to take into account the context, LM loss and preview characters;
-train_attention_saccadic_length.py for training the attention module to predict saccadic length;
-train.py file for training all the variants with different variables;
-test_attention_basic.py for basic attention module to predict the fixation sequence;
-test_attention_preview.py for attention module variants to predict the fixation sequence;
-test_attention_saccadic_length.py for attention module to predict the saccadic length;
-test.py for testing all the models once.
+train_autoencoder.py file for pre-training reader-decoder network;  
+train_attention_basic.py for jointly training the attention module without extra conditions given;  
+train_attention_preview.py for training the attention module, allowing model to take into account the context, LM loss and preview characters;  
+train_attention_saccadic_length.py for training the attention module to predict saccadic length;  
+train.py file for training all the variants with different variables;  
+test_attention_basic.py for basic attention module to predict the fixation sequence;  
+test_attention_preview.py for attention module variants to predict the fixation sequence;  
+test_attention_saccadic_length.py for attention module to predict the saccadic length;  
+test.py for testing all the models once.  
 
 In addition, it provides .ipynb files to extract evaluation data, run baselines and Linear Mixed-effects Models (LMMs) experiment with R.
 These files include:
